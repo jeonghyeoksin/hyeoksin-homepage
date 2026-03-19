@@ -1,0 +1,5 @@
+{
+  "name": "혁신 홈페이지 개발 AI",
+  "description": "홈페이지 개발을 위한 요구사항을 입력받아 구글 AI 스튜디오 Build용 프롬프트를 생성해주는 AI 어플리케이션입니다.",
+  "requestFramePermissions": []
+}
