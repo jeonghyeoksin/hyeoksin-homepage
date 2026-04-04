@@ -21,10 +21,13 @@ export default function App() {
     projectName: '',
     purpose: '',
     targetAudience: '',
+    brandVoice: '',
     features: '',
+    cta: '',
     style: '',
     pages: '',
     colors: '',
+    keyAssets: '',
     additional: ''
   });
 
@@ -67,18 +70,24 @@ export default function App() {
 
         다음 항목들에 대해 가장 적절하고 매력적인 내용을 제안해주세요:
         1. 타겟 고객
-        2. 주요 기능 (3~5개)
-        3. 디자인 스타일/분위기
-        4. 필요한 페이지 구성
-        5. 메인 색상 (배경색과 포인트 컬러 포함)
+        2. 브랜드 보이스/톤 (예: 전문적인, 친근한, 대담한 등)
+        3. 주요 기능 (3~5개)
+        4. 핵심 호출 문구 (CTA - 예: 지금 시작하기, 무료 상담받기)
+        5. 디자인 스타일/분위기
+        6. 필요한 페이지 구성
+        7. 메인 색상 (배경색과 포인트 컬러 포함)
+        8. 주요 시각적 요소 (예: 고해상도 사진, 3D 일러스트, 미니멀 아이콘)
 
         응답은 반드시 다음 JSON 형식으로만 출력하세요:
         {
           "targetAudience": "내용",
+          "brandVoice": "내용",
           "features": "내용",
+          "cta": "내용",
           "style": "내용",
           "pages": "내용",
-          "colors": "내용"
+          "colors": "내용",
+          "keyAssets": "내용"
         }
       `;
 
@@ -122,10 +131,13 @@ export default function App() {
 - 프로젝트 이름: ${formData.projectName || '미정'}
 - 웹사이트 목적: ${formData.purpose || '미정'}
 - 타겟 고객: ${formData.targetAudience || '미정'}
+- 브랜드 보이스: ${formData.brandVoice || '미정'}
 - 주요 기능: ${formData.features || '미정'}
+- 핵심 CTA: ${formData.cta || '미정'}
 - 선호하는 디자인 스타일/분위기: ${formData.style || '미정'}
 - 필요한 페이지 구성: ${formData.pages || '미정'}
 - 메인 색상: ${formData.colors || '미정'}
+- 주요 시각적 요소: ${formData.keyAssets || '미정'}
 - 추가 요구사항: ${formData.additional || '없음'}
 
 [프롬프트 생성 지침: P.A.S.T. 공식 적용]
@@ -172,14 +184,17 @@ export default function App() {
     { id: 'projectName', label: '프로젝트 이름', icon: <FileText size={18} className="text-indigo-400" />, placeholder: '예: 혁신적인 AI 포트폴리오 사이트' },
     { id: 'purpose', label: '웹사이트 목적', icon: <Layout size={18} className="text-indigo-400" />, placeholder: '예: 개인 포트폴리오 전시 및 프리랜서 문의 접수' },
     { id: 'targetAudience', label: '타겟 고객', icon: <Users size={18} className="text-indigo-400" />, placeholder: '예: IT 기업 채용 담당자, 스타트업 대표' },
+    { id: 'brandVoice', label: '브랜드 보이스/톤', icon: <Sparkles size={18} className="text-indigo-400" />, placeholder: '예: 신뢰감 있는 전문적인 톤, 혹은 친근하고 따뜻한 톤' },
     { id: 'features', label: '주요 기능', icon: <Code size={18} className="text-indigo-400" />, placeholder: '예: 다크모드, 프로젝트 갤러리 필터링, 문의 폼' },
+    { id: 'cta', label: '핵심 호출 문구 (CTA)', icon: <ArrowRight size={18} className="text-indigo-400" />, placeholder: '예: 지금 시작하기, 무료 상담 신청' },
     { id: 'style', label: '디자인 스타일/분위기', icon: <Palette size={18} className="text-indigo-400" />, placeholder: '예: 미니멀하고 미래지향적인 다크 테마' },
     { id: 'pages', label: '필요한 페이지', icon: <Layout size={18} className="text-indigo-400" />, placeholder: '예: 홈, 소개, 프로젝트, 이력서, 연락처' },
     { id: 'colors', label: '메인 색상', icon: <Palette size={18} className="text-indigo-400" />, placeholder: '예: 배경은 진한 회색, 포인트 컬러는 네온 퍼플' },
+    { id: 'keyAssets', label: '주요 시각적 요소', icon: <Sparkles size={18} className="text-indigo-400" />, placeholder: '예: 고해상도 인물 사진, 추상적인 3D 그래픽' },
   ];
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans selection:bg-indigo-500/30 pb-20">
+    <div className="min-h-screen bg-zinc-950 text-zinc-50 font-sans selection:bg-indigo-500/30 pb-20">
       {/* API Key Status Button */}
       <div className="fixed top-4 right-4 z-50 flex gap-2">
         <button 
@@ -278,30 +293,30 @@ export default function App() {
           {/* Enhanced Background Image/Gradient */}
           <div className="absolute inset-0 bg-zinc-950">
             <img 
-              src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=2426&ixlib=rb-4.0.3" 
+              src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=2426&ixlib=rb-4.0.3" 
               alt="Web Development Background"
-              className="w-full h-full object-cover opacity-30 mix-blend-luminosity group-hover:scale-105 transition-transform duration-700"
+              className="w-full h-full object-cover opacity-40 mix-blend-luminosity group-hover:scale-105 transition-transform duration-700"
               referrerPolicy="no-referrer"
             />
           </div>
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-950/90 via-purple-900/40 to-zinc-950/90"></div>
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-indigo-500/10 via-transparent to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-950/95 via-purple-900/60 to-zinc-950/95"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-indigo-500/20 via-transparent to-transparent"></div>
           
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 z-10">
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.2, type: "spring" }}
-              className="mb-6 inline-flex items-center justify-center p-4 bg-white/5 rounded-3xl backdrop-blur-xl border border-white/10 shadow-2xl"
+              className="mb-6 inline-flex items-center justify-center p-4 bg-white/10 rounded-3xl backdrop-blur-xl border border-white/20 shadow-2xl"
             >
-              <Sparkles className="text-indigo-400 w-10 h-10 animate-pulse" />
+              <Sparkles className="text-indigo-300 w-10 h-10 animate-pulse" />
             </motion.div>
             
             <motion.h1 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="text-4xl sm:text-6xl md:text-8xl font-black text-white mb-6 tracking-tighter drop-shadow-[0_5px_15px_rgba(0,0,0,0.5)]"
+              className="text-4xl sm:text-6xl md:text-8xl font-black text-white mb-6 tracking-tighter drop-shadow-[0_8px_30px_rgba(0,0,0,0.8)]"
             >
               혁신 홈페이지 개발 AI
             </motion.h1>
@@ -310,7 +325,7 @@ export default function App() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="text-lg md:text-2xl text-zinc-300 font-medium max-w-2xl mx-auto leading-tight opacity-90"
+              className="text-lg md:text-2xl text-white font-bold max-w-2xl mx-auto leading-tight drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]"
             >
               복잡한 기획부터 고해상도 프롬프트 생성까지<br className="hidden sm:block"/> 단 한 번의 터치로 완성하세요
             </motion.p>
@@ -319,10 +334,10 @@ export default function App() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="mt-10 px-6 py-3 bg-white/5 backdrop-blur-xl rounded-full border border-white/10 text-sm text-zinc-300 flex items-center gap-3 shadow-2xl"
+              className="mt-10 px-6 py-3 bg-white/10 backdrop-blur-xl rounded-full border border-white/20 text-sm text-white flex items-center gap-3 shadow-2xl font-bold"
             >
-              <div className="w-2 h-2 rounded-full bg-indigo-500 animate-ping"></div>
-              <span className="font-bold tracking-widest uppercase text-[10px]">Developer : 정혁신</span>
+              <div className="w-2 h-2 rounded-full bg-indigo-400 animate-ping"></div>
+              <span className="tracking-widest uppercase text-[11px]">Developer : 정혁신</span>
             </motion.div>
           </div>
         </motion.div>
@@ -360,20 +375,20 @@ export default function App() {
               </div>
             </motion.div>
 
-            <div className="bg-zinc-900/50 border border-zinc-800/80 rounded-3xl p-6 sm:p-8 backdrop-blur-xl shadow-xl">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 sm:p-8 backdrop-blur-xl shadow-2xl">
               <div className="mb-8">
                 <h2 className="text-2xl font-bold text-white flex items-center gap-3 mb-2">
                   <Layout className="text-indigo-400" />
                   요구사항 입력
                 </h2>
-                <p className="text-zinc-400 text-sm">최대한 자세히 입력할수록 더 매력적인 홈페이지 프롬프트가 생성됩니다.</p>
+                <p className="text-zinc-300 text-sm font-medium">최대한 자세히 입력할수록 더 매력적인 홈페이지 프롬프트가 생성됩니다.</p>
               </div>
 
               <div className="space-y-5">
                 {inputFields.map((field, index) => (
                   <React.Fragment key={field.id}>
                     <div className="space-y-2">
-                      <label htmlFor={field.id} className="flex items-center gap-2 text-sm font-medium text-zinc-300">
+                      <label htmlFor={field.id} className="flex items-center gap-2 text-sm font-bold text-zinc-200">
                         {field.icon}
                         {field.label}
                       </label>
@@ -384,7 +399,7 @@ export default function App() {
                         value={formData[field.id as keyof typeof formData]}
                         onChange={handleInputChange}
                         placeholder={field.placeholder}
-                        className="w-full bg-zinc-950/50 border border-zinc-800 rounded-xl px-4 py-3 text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-sm"
+                        className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white placeholder:text-zinc-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all text-sm font-medium"
                       />
                     </div>
                     {index === 1 && (
@@ -407,7 +422,7 @@ export default function App() {
                 ))}
 
                 <div className="space-y-2">
-                  <label htmlFor="additional" className="flex items-center gap-2 text-sm font-medium text-zinc-300">
+                  <label htmlFor="additional" className="flex items-center gap-2 text-sm font-bold text-zinc-200">
                     <PlusCircle size={18} className="text-indigo-400" />
                     추가 요구사항
                   </label>
@@ -418,7 +433,7 @@ export default function App() {
                     onChange={handleInputChange}
                     placeholder="기타 특별히 원하는 기능이나 참고할 만한 사이트 URL 등을 자유롭게 적어주세요."
                     rows={4}
-                    className="w-full bg-zinc-950/50 border border-zinc-800 rounded-xl px-4 py-3 text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-sm resize-none"
+                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white placeholder:text-zinc-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all text-sm font-medium resize-none"
                   />
                 </div>
               </div>
@@ -457,14 +472,14 @@ export default function App() {
 
           {/* Output Display */}
           <div className="lg:col-span-7">
-            <div className="bg-zinc-900/50 border border-zinc-800/80 rounded-3xl p-6 sm:p-8 backdrop-blur-xl shadow-xl h-full min-h-[600px] flex flex-col">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 sm:p-8 backdrop-blur-xl shadow-2xl h-full min-h-[600px] flex flex-col">
               <div className="flex justify-between items-center mb-6">
                 <div>
                   <h2 className="text-2xl font-bold text-white flex items-center gap-3 mb-1">
                     <Code className="text-purple-400" />
                     생성된 프롬프트
                   </h2>
-                  <p className="text-zinc-400 text-sm">이 프롬프트를 구글 AI 스튜디오 Build에 붙여넣으세요.</p>
+                  <p className="text-zinc-300 text-sm font-medium">이 프롬프트를 구글 AI 스튜디오 Build에 붙여넣으세요.</p>
                 </div>
                 
                 {generatedPrompt && (
@@ -478,10 +493,10 @@ export default function App() {
                 )}
               </div>
 
-              <div className="flex-grow bg-zinc-950/80 border border-zinc-800 rounded-2xl p-6 overflow-auto relative group">
+              <div className="flex-grow bg-zinc-950 border border-zinc-800 rounded-2xl p-6 overflow-auto relative group shadow-inner">
                 {generatedPrompt ? (
                   <>
-                    <div className="prose prose-invert prose-indigo max-w-none prose-sm sm:prose-base">
+                    <div className="prose prose-invert prose-indigo max-w-none prose-sm sm:prose-base prose-p:text-zinc-200 prose-headings:text-white prose-strong:text-indigo-300 prose-li:text-zinc-200">
                       <ReactMarkdown>{generatedPrompt}</ReactMarkdown>
                     </div>
                     
@@ -533,9 +548,9 @@ export default function App() {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => window.open('https://hyeoksinai.com', '_blank')}
-          className="flex items-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full shadow-lg shadow-indigo-500/20 border border-indigo-400/30 transition-all font-medium text-sm"
+          className="flex items-center gap-2 px-6 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full shadow-xl shadow-indigo-500/30 border border-indigo-400/40 transition-all font-bold text-sm"
         >
-          <Sparkles size={16} />
+          <Sparkles size={18} />
           혁신AI 플랫폼 바로가기
         </motion.button>
         
@@ -543,9 +558,9 @@ export default function App() {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setShowInquiryModal(true)}
-          className="flex items-center gap-2 px-5 py-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded-full shadow-lg border border-zinc-700 transition-all font-medium text-sm"
+          className="flex items-center gap-2 px-6 py-3.5 bg-zinc-800 hover:bg-zinc-700 text-white rounded-full shadow-xl border border-zinc-600 transition-all font-bold text-sm"
         >
-          <AlertCircle size={16} />
+          <AlertCircle size={18} />
           오류 및 유지보수 문의
         </motion.button>
       </div>
