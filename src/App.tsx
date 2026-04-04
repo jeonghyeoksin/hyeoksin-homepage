@@ -28,7 +28,8 @@ export default function App() {
     pages: '',
     colors: '',
     keyAssets: '',
-    additional: ''
+    additional: '',
+    images: [] as { data: string; mimeType: string }[]
   });
 
   const [generatedPrompt, setGeneratedPrompt] = useState('');
@@ -40,6 +41,32 @@ export default function App() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    Array.from(files).forEach(file => {
+      if (!file.type.startsWith('image/')) return;
+      
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = (reader.result as string).split(',')[1];
+        setFormData(prev => ({
+          ...prev,
+          images: [...prev.images, { data: base64String, mimeType: file.type }]
+        }));
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removeImage = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index)
+    }));
   };
 
   const handleSaveApiKey = () => {
@@ -123,9 +150,9 @@ export default function App() {
     try {
       const ai = new GoogleGenAI({ apiKey: apiKey });
       
-      const prompt = `
+      const promptText = `
 당신은 구글 AI 스튜디오 Build(Vibe Coding)를 위한 완벽한 '고해상도' 프롬프트를 작성하는 수석 프롬프트 엔지니어입니다.
-사용자가 제공한 요구사항을 바탕으로, **P.A.S.T. 공식**을 적용하여 AI가 즉시 상용 수준의 웹사이트를 제작할 수 있도록 정교한 프롬프트를 작성해주세요.
+사용자가 제공한 요구사항${formData.images.length > 0 ? '과 첨부된 이미지' : ''}를 바탕으로, **P.A.S.T. 공식**을 적용하여 AI가 즉시 상용 수준의 웹사이트를 제작할 수 있도록 정교한 프롬프트를 작성해주세요.
 
 [사용자 요구사항]
 - 프로젝트 이름: ${formData.projectName || '미정'}
@@ -139,13 +166,14 @@ export default function App() {
 - 메인 색상: ${formData.colors || '미정'}
 - 주요 시각적 요소: ${formData.keyAssets || '미정'}
 - 추가 요구사항: ${formData.additional || '없음'}
+${formData.images.length > 0 ? '\n[시각적 참고 자료]\n사용자가 이미지를 첨부했습니다. 이미지의 레이아웃, 색감, 폰트 스타일, 컴포넌트 구성 등을 분석하여 프롬프트에 반영하세요.' : ''}
 
 [프롬프트 생성 지침: P.A.S.T. 공식 적용]
 다음 4가지 단계를 포함하여 프롬프트를 구성하세요:
 
 ① **Persona (역할 정의)**: 프로젝트 성격에 맞는 구체적인 페르소나를 부여하세요. (예: "너는 세련된 타이포그래피를 중시하는 시니어 UI 개발자야")
 ② **Action (핵심 기능 및 유저 스토리)**: 앱의 존재 이유와 사용자가 겪을 여정을 명확히 하세요. 입력, 처리, 출력 과정을 상세히 묘사하세요.
-③ **Style & Stack (스타일과 기술 스택)**: Tailwind CSS, Lucide-react 등을 명시하고, 시각적 가이드라인(테마, 반응형, 애니메이션)을 구체적으로 제시하세요.
+③ **Style & Stack (스타일과 기술 스택)**: Tailwind CSS, Lucide-react 등을 명시하고, 시각적 가이드라인(테마, 반응형, 애니메이션)을 구체적으로 제시하세요. ${formData.images.length > 0 ? '첨부된 이미지의 스타일을 적극적으로 참고하여 묘사하세요.' : ''}
 ④ **Target/Detail (제약 조건 및 상세 요구사항)**: LocalStorage 사용 여부, 에러 처리, 애니메이션 디테일 등 AI가 놓치기 쉬운 기술적 세부사항을 명시하세요.
 
 [출력 규칙]
@@ -155,9 +183,23 @@ export default function App() {
 4. 결과물이 '매력적인 홈페이지'가 될 수 있도록 트렌디한 디자인 요소를 적극 제안하세요.
 `;
 
+      const contents = formData.images.length > 0 
+        ? {
+            parts: [
+              { text: promptText },
+              ...formData.images.map(img => ({
+                inlineData: {
+                  data: img.data,
+                  mimeType: img.mimeType
+                }
+              }))
+            ]
+          }
+        : promptText;
+
       const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
-        contents: prompt,
+        contents: contents,
       });
 
       setGeneratedPrompt(response.text || '');
@@ -396,7 +438,7 @@ export default function App() {
                         type="text"
                         id={field.id}
                         name={field.id}
-                        value={formData[field.id as keyof typeof formData]}
+                        value={formData[field.id as keyof typeof formData] as string}
                         onChange={handleInputChange}
                         placeholder={field.placeholder}
                         className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white placeholder:text-zinc-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all text-sm font-medium"
@@ -435,6 +477,43 @@ export default function App() {
                     rows={4}
                     className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white placeholder:text-zinc-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all text-sm font-medium resize-none"
                   />
+                </div>
+
+                {/* Image Upload Section */}
+                <div className="space-y-3">
+                  <label className="flex items-center gap-2 text-sm font-bold text-zinc-200">
+                    <Palette size={18} className="text-indigo-400" />
+                    참고 이미지 첨부 (PNG, JPG)
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {formData.images.map((img, idx) => (
+                      <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-zinc-800 group">
+                        <img 
+                          src={`data:${img.mimeType};base64,${img.data}`} 
+                          alt={`Reference ${idx}`} 
+                          className="w-full h-full object-cover"
+                        />
+                        <button 
+                          onClick={() => removeImage(idx)}
+                          className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
+                    ))}
+                    <label className="aspect-square rounded-xl border-2 border-dashed border-zinc-800 hover:border-indigo-500/50 flex flex-col items-center justify-center cursor-pointer transition-all hover:bg-indigo-500/5 group">
+                      <PlusCircle size={24} className="text-zinc-600 group-hover:text-indigo-400 mb-2" />
+                      <span className="text-[10px] text-zinc-500 group-hover:text-indigo-300 font-bold uppercase tracking-widest">이미지 추가</span>
+                      <input 
+                        type="file" 
+                        multiple 
+                        accept="image/png, image/jpeg" 
+                        onChange={handleImageUpload} 
+                        className="hidden" 
+                      />
+                    </label>
+                  </div>
+                  <p className="text-[10px] text-zinc-500">※ 첨부된 이미지는 AI가 디자인 스타일 및 레이아웃 분석용으로 참고합니다.</p>
                 </div>
               </div>
 
