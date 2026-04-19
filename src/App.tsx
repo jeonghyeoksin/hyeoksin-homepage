@@ -15,6 +15,7 @@ export default function App() {
   const [showInquiryModal, setShowInquiryModal] = useState(false);
   const [showCostModal, setShowCostModal] = useState(false);
   const [showGuideModal, setShowGuideModal] = useState(false);
+  const [showPatchNotesModal, setShowPatchNotesModal] = useState(false);
   const [tempApiKey, setTempApiKey] = useState('');
   
   const [formData, setFormData] = useState({
@@ -37,6 +38,63 @@ export default function App() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isPlanning, setIsPlanning] = useState(false);
   const [error, setError] = useState('');
+
+  const patchNotes = [
+    { 
+      version: 'v1.9.0', 
+      date: '2026-04-19', 
+      title: '패치노트 및 서비스 안정화', 
+      changes: ['실시간 패치노트 기능 추가', 'API 비용 예측을 위한 다양한 생성 사례 예시 추가'] 
+    },
+    { 
+      version: 'v1.8.0', 
+      date: '2026-04-04', 
+      title: '멀티모달 이미지 분석 도입', 
+      changes: ['참고 이미지 업로드 기능 추가 (PNG, JPG)', '이미지 기반 시각적 분석 프롬프트 반영', 'Gemini 3 Flash 멀티모달 엔진 최적화'] 
+    },
+    { 
+      version: 'v1.7.0', 
+      date: '2026-04-04', 
+      title: '기획 정교화 및 UI 가독성 개선', 
+      changes: ['브랜드 보이스, CTA, 시각적 요소 항목 추가', '전체적인 텍스트 대비 및 가독성 대폭 개선', '배경 및 입력창 디자인 고도화'] 
+    },
+    { 
+      version: 'v1.6.0', 
+      date: '2026-04-04', 
+      title: 'UI/UX 리뉴얼 및 사용 가이드', 
+      changes: ['히어로 섹션 디자인 강화', '초보자를 위한 상세 사용방법 가이드 모달 추가'] 
+    },
+    { 
+      version: 'v1.5.0', 
+      date: '2026-03-19', 
+      title: 'P.A.S.T. 프롬프트 프레임워크', 
+      changes: ['Persona, Action, Style, Target 기반 고해상도 프롬프트 생성', 'P.A.S.T. 프레임워크 안내 가이드 추가'] 
+    },
+    { 
+      version: 'v1.4.0', 
+      date: '2026-03-19', 
+      title: '원터치 AI 자동 기획', 
+      changes: ['프로젝트 이름과 목적 기반 자동 정보 입력 기능 추가'] 
+    },
+    { 
+      version: 'v1.3.0', 
+      date: '2026-03-19', 
+      title: '모델 업그레이드 및 실시간 비용', 
+      changes: ['Gemini 3 Flash Preview 모델 적용', '프롬프트 생성 시 소모 토큰 및 예상 비용 실시간 표시'] 
+    },
+    { 
+      version: 'v1.2.0', 
+      date: '2026-03-19', 
+      title: '운영 편의 기능 추가', 
+      changes: ['API 상세 비용 안내 모달 추가', '우측 하단 문의 및 플랫폼 바로가기 버튼 추가'] 
+    },
+    { 
+      version: 'v1.0.0', 
+      date: '2026-03-19', 
+      title: '혁신 홈페이지 개발 AI 런칭', 
+      changes: ['홈페이지 요구사항 기반 AI 프롬프트 생성 엔진 구축', 'Gemini API 연동 및 API Key 보안 관리'] 
+    }
+  ];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -239,6 +297,14 @@ ${formData.images.length > 0 ? '\n[시각적 참고 자료]\n사용자가 이미
     <div className="min-h-screen bg-zinc-950 text-zinc-50 font-sans selection:bg-indigo-500/30 pb-20">
       {/* API Key Status Button */}
       <div className="fixed top-4 right-4 z-50 flex gap-2">
+        <button 
+          onClick={() => setShowPatchNotesModal(true)}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-full backdrop-blur-md border border-zinc-800 bg-zinc-900/50 text-zinc-300 hover:bg-zinc-800 transition-all shadow-lg"
+        >
+          <Settings size={16} className="text-zinc-400" />
+          <span className="text-sm font-medium hidden sm:inline">패치노트</span>
+        </button>
+
         <button 
           onClick={() => setShowGuideModal(true)}
           className="flex items-center gap-2 px-4 py-2.5 rounded-full backdrop-blur-md border border-zinc-800 bg-zinc-900/50 text-zinc-300 hover:bg-zinc-800 transition-all shadow-lg"
@@ -646,6 +712,61 @@ ${formData.images.length > 0 ? '\n[시각적 참고 자료]\n사용자가 이미
 
       {/* How to Use Modal */}
       <AnimatePresence>
+        {showPatchNotesModal && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 w-full max-w-2xl shadow-2xl"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                  <Settings size={20} className="text-zinc-400" />
+                  혁신 AI 패치노트
+                </h3>
+                <button onClick={() => setShowPatchNotesModal(false)} className="text-zinc-400 hover:text-white transition-colors">
+                  <X size={20} />
+                </button>
+              </div>
+              
+              <div className="space-y-6 max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar">
+                {patchNotes.map((note) => (
+                  <div key={note.version} className="border-b border-zinc-800 pb-6 last:border-0">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-baseline gap-3">
+                        <span className="text-indigo-400 font-black text-lg">{note.version}</span>
+                        <h4 className="text-white font-bold">{note.title}</h4>
+                      </div>
+                      <span className="text-xs text-zinc-500 font-mono italic">{note.date}</span>
+                    </div>
+                    <ul className="space-y-2">
+                      {note.changes.map((change, idx) => (
+                        <li key={idx} className="text-sm text-zinc-400 flex items-start gap-2">
+                          <CheckCircle size={14} className="text-emerald-500 shrink-0 mt-0.5" />
+                          {change}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-8 flex justify-end">
+                <button 
+                  onClick={() => setShowPatchNotesModal(false)}
+                  className="px-6 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-white text-sm font-medium rounded-xl transition-colors"
+                >
+                  닫기
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* How to Use Modal */}
+      <AnimatePresence>
         {showGuideModal && (
           <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
             <motion.div 
@@ -766,6 +887,36 @@ ${formData.images.length > 0 ? '\n[시각적 참고 자료]\n사용자가 이미
                         <span className="text-white font-mono">약 405원 ($0.30)</span>
                       </li>
                     </ul>
+                  </div>
+                </div>
+
+                <div className="bg-zinc-950 p-5 rounded-2xl border border-zinc-800">
+                  <h4 className="text-blue-400 font-bold mb-4 flex items-center gap-2">
+                    <Code size={16} />
+                    생성 프롬프트별 예상 비용 예시
+                  </h4>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-3 bg-zinc-900 rounded-xl border border-zinc-800/50">
+                        <p className="text-[11px] text-zinc-500 mb-1">단순 홍보용 (약 1,500토큰)</p>
+                        <p className="text-sm text-white font-mono">약 0.9원</p>
+                      </div>
+                      <div className="p-3 bg-zinc-900 rounded-xl border border-zinc-800/50">
+                        <p className="text-[11px] text-zinc-500 mb-1">비즈니스 플랫폼 (약 3,000토큰)</p>
+                        <p className="text-sm text-white font-mono">약 1.8원</p>
+                      </div>
+                      <div className="p-3 bg-zinc-900 rounded-xl border border-zinc-800/50">
+                        <p className="text-[11px] text-zinc-500 mb-1">복잡한 SaaS 앱 (약 5,000토큰)</p>
+                        <p className="text-sm text-white font-mono">약 3.0원</p>
+                      </div>
+                      <div className="p-3 bg-zinc-900 rounded-xl border border-zinc-800/50">
+                        <p className="text-[11px] text-zinc-500 mb-1">기획 정보가 많은 경우 (약 8,000토큰)</p>
+                        <p className="text-sm text-white font-mono">약 4.8원</p>
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-zinc-500 italic">
+                      ※ 위 예시는 평균적인 프롬프트 길이를 기준으로 하며, 이미지 분석 사용 시 토큰 소모가 증가할 수 있습니다.
+                    </p>
                   </div>
                 </div>
 
