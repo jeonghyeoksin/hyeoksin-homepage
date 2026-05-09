@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Key, CheckCircle, AlertCircle, Sparkles, Copy, ArrowRight, Code, Layout, Palette, Users, FileText, Settings, X, PlusCircle } from 'lucide-react';
+import { Key, CheckCircle, AlertCircle, Sparkles, Copy, ArrowRight, Code, Layout, Palette, Users, FileText, Settings, X, PlusCircle, Database, Package, Zap } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
 import ReactMarkdown from 'react-markdown';
 
@@ -21,6 +21,9 @@ export default function App() {
   const [formData, setFormData] = useState({
     projectName: '',
     purpose: '',
+    coreValue: '',
+    businessModel: '',
+    references: '',
     targetAudience: '',
     brandVoice: '',
     features: '',
@@ -29,6 +32,9 @@ export default function App() {
     pages: '',
     colors: '',
     keyAssets: '',
+    animations: '',
+    dataPersistence: '',
+    libraries: '',
     additional: '',
     images: [] as { data: string; mimeType: string }[]
   });
@@ -40,6 +46,18 @@ export default function App() {
   const [error, setError] = useState('');
 
   const patchNotes = [
+    { 
+      version: 'v1.11.0', 
+      date: '2026-05-09', 
+      title: '기초 입력 항목 추가 및 기획 자동화 고도화', 
+      changes: ['핵심 가치, 서비스 형태, 참고 사이트 기초 항목 추가', '원터치 기획 시나리오 최적화'] 
+    },
+    { 
+      version: 'v1.10.0', 
+      date: '2026-05-09', 
+      title: '완성도 극대화 기획 항목 추가', 
+      changes: ['애니메이션 및 상호작용 지침 추가', '데이터 관리 방식 (Persistence) 항목 추가', '특정 프론트엔드 라이브러리 지정 기능 추가'] 
+    },
     { 
       version: 'v1.9.0', 
       date: '2026-04-19', 
@@ -149,9 +167,12 @@ export default function App() {
     try {
       const ai = new GoogleGenAI({ apiKey: apiKey });
       const prompt = `
-        다음 정보를 바탕으로 홈페이지 기획안을 완성해주세요.
+        다음 기초 정보를 바탕으로 웹사이트 기획안을 완성해주세요.
         - 프로젝트 이름: ${formData.projectName}
         - 웹사이트 목적: ${formData.purpose}
+        - 핵심 가치/차별점: ${formData.coreValue || '특별히 지정되지 않음'}
+        - 서비스 형태/비즈니스 모델: ${formData.businessModel || '특별히 지정되지 않음'}
+        - 참고 사이트/벤치마킹: ${formData.references || '특별히 지정되지 않음'}
 
         다음 항목들에 대해 가장 적절하고 매력적인 내용을 제안해주세요:
         1. 타겟 고객
@@ -162,6 +183,9 @@ export default function App() {
         6. 필요한 페이지 구성
         7. 메인 색상 (배경색과 포인트 컬러 포함)
         8. 주요 시각적 요소 (예: 고해상도 사진, 3D 일러스트, 미니멀 아이콘)
+        9. 애니메이션 및 상호작용 효과 (예: 부드러운 페이지 전환, 호버 이펙트)
+        10. 데이터 관리 및 저장 방식 (예: UI용 Mock 데이터, LocalStorage, 또는 백엔드 연동 구조)
+        11. 추천하는 특정 프론트엔드 라이브러리 (예: Framer Motion, shadcn/ui, Recharts)
 
         응답은 반드시 다음 JSON 형식으로만 출력하세요:
         {
@@ -172,7 +196,10 @@ export default function App() {
           "style": "내용",
           "pages": "내용",
           "colors": "내용",
-          "keyAssets": "내용"
+          "keyAssets": "내용",
+          "animations": "내용",
+          "dataPersistence": "내용",
+          "libraries": "내용"
         }
       `;
 
@@ -215,6 +242,9 @@ export default function App() {
 [사용자 요구사항]
 - 프로젝트 이름: ${formData.projectName || '미정'}
 - 웹사이트 목적: ${formData.purpose || '미정'}
+- 핵심 가치/차별점: ${formData.coreValue || '미정'}
+- 서비스 형태: ${formData.businessModel || '미정'}
+- 참고 사이트: ${formData.references || '미정'}
 - 타겟 고객: ${formData.targetAudience || '미정'}
 - 브랜드 보이스: ${formData.brandVoice || '미정'}
 - 주요 기능: ${formData.features || '미정'}
@@ -223,6 +253,9 @@ export default function App() {
 - 필요한 페이지 구성: ${formData.pages || '미정'}
 - 메인 색상: ${formData.colors || '미정'}
 - 주요 시각적 요소: ${formData.keyAssets || '미정'}
+- 애니메이션/상호작용: ${formData.animations || '미정'}
+- 데이터 관리 방식: ${formData.dataPersistence || '미정'}
+- 필요한 외부 라이브러리: ${formData.libraries || '미정'}
 - 추가 요구사항: ${formData.additional || '없음'}
 ${formData.images.length > 0 ? '\n[시각적 참고 자료]\n사용자가 이미지를 첨부했습니다. 이미지의 레이아웃, 색감, 폰트 스타일, 컴포넌트 구성 등을 분석하여 프롬프트에 반영하세요.' : ''}
 
@@ -280,9 +313,15 @@ ${formData.images.length > 0 ? '\n[시각적 참고 자료]\n사용자가 이미
     alert('프롬프트가 클립보드에 복사되었습니다. 구글 AI 스튜디오 Build에 붙여넣어주세요!');
   };
 
-  const inputFields = [
+  const basicFields = [
     { id: 'projectName', label: '프로젝트 이름', icon: <FileText size={18} className="text-indigo-400" />, placeholder: '예: 혁신적인 AI 포트폴리오 사이트' },
     { id: 'purpose', label: '웹사이트 목적', icon: <Layout size={18} className="text-indigo-400" />, placeholder: '예: 개인 포트폴리오 전시 및 프리랜서 문의 접수' },
+    { id: 'coreValue', label: '핵심 가치 및 차별점', icon: <Sparkles size={18} className="text-indigo-400" />, placeholder: '예: 10배 빠른 처리, 혁신적인 UI/UX' },
+    { id: 'businessModel', label: '서비스 형태 / 수익 모델', icon: <Users size={18} className="text-indigo-400" />, placeholder: '예: B2B SaaS 구독형, 무료 커뮤니티' },
+    { id: 'references', label: '참고 사이트 / 벤치마킹', icon: <ArrowRight size={18} className="text-indigo-400" />, placeholder: '예: Apple처럼 깔끔한 레이아웃' },
+  ];
+
+  const detailFields = [
     { id: 'targetAudience', label: '타겟 고객', icon: <Users size={18} className="text-indigo-400" />, placeholder: '예: IT 기업 채용 담당자, 스타트업 대표' },
     { id: 'brandVoice', label: '브랜드 보이스/톤', icon: <Sparkles size={18} className="text-indigo-400" />, placeholder: '예: 신뢰감 있는 전문적인 톤, 혹은 친근하고 따뜻한 톤' },
     { id: 'features', label: '주요 기능', icon: <Code size={18} className="text-indigo-400" />, placeholder: '예: 다크모드, 프로젝트 갤러리 필터링, 문의 폼' },
@@ -291,6 +330,9 @@ ${formData.images.length > 0 ? '\n[시각적 참고 자료]\n사용자가 이미
     { id: 'pages', label: '필요한 페이지', icon: <Layout size={18} className="text-indigo-400" />, placeholder: '예: 홈, 소개, 프로젝트, 이력서, 연락처' },
     { id: 'colors', label: '메인 색상', icon: <Palette size={18} className="text-indigo-400" />, placeholder: '예: 배경은 진한 회색, 포인트 컬러는 네온 퍼플' },
     { id: 'keyAssets', label: '주요 시각적 요소', icon: <Sparkles size={18} className="text-indigo-400" />, placeholder: '예: 고해상도 인물 사진, 추상적인 3D 그래픽' },
+    { id: 'animations', label: '애니메이션 및 상호작용', icon: <Zap size={18} className="text-indigo-400" />, placeholder: '예: 부드러운 스크롤, Framer Motion을 활용한 요소 등장 효과' },
+    { id: 'dataPersistence', label: '데이터 관리 방식', icon: <Database size={18} className="text-indigo-400" />, placeholder: '예: LocalStorage를 활용한 데이터 유지, 상태 관리' },
+    { id: 'libraries', label: '필요한 컴포넌트/라이브러리', icon: <Package size={18} className="text-indigo-400" />, placeholder: '예: shadcn/ui, Recharts, Lucide-react' },
   ];
 
   return (
@@ -492,10 +534,19 @@ ${formData.images.length > 0 ? '\n[시각적 참고 자료]\n사용자가 이미
                 <p className="text-zinc-300 text-sm font-medium">최대한 자세히 입력할수록 더 매력적인 홈페이지 프롬프트가 생성됩니다.</p>
               </div>
 
-              <div className="space-y-5">
-                {inputFields.map((field, index) => (
-                  <React.Fragment key={field.id}>
-                    <div className="space-y-2">
+              <div className="space-y-10">
+                {/* 기초 정보 섹션 */}
+                <div className="space-y-5">
+                  <div className="mb-4 space-y-1 pb-3 border-b border-zinc-800">
+                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                      <Layout className="text-indigo-400" size={18} /> 
+                      1. 기초 정보 (Foundation)
+                    </h3>
+                    <p className="text-sm text-zinc-400">명확한 기획을 위해 필수적인 기초 정보를 입력해주세요.</p>
+                  </div>
+                  
+                  {basicFields.map((field) => (
+                    <div key={field.id} className="space-y-2">
                       <label htmlFor={field.id} className="flex items-center gap-2 text-sm font-bold text-zinc-200">
                         {field.icon}
                         {field.label}
@@ -510,76 +561,106 @@ ${formData.images.length > 0 ? '\n[시각적 참고 자료]\n사용자가 이미
                         className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white placeholder:text-zinc-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all text-sm font-medium"
                       />
                     </div>
-                    {index === 1 && (
-                      <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={handleAutoPlan}
-                        disabled={isPlanning || !formData.projectName || !formData.purpose}
-                        className="w-full py-3 px-4 bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-indigo-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {isPlanning ? (
-                          <div className="w-4 h-4 border-2 border-indigo-400/30 border-t-indigo-400 rounded-full animate-spin" />
-                        ) : (
-                          <Sparkles size={14} />
-                        )}
-                        원터치 AI 자동 기획 (나머지 항목 채우기)
-                      </motion.button>
-                    )}
-                  </React.Fragment>
-                ))}
+                  ))}
 
-                <div className="space-y-2">
-                  <label htmlFor="additional" className="flex items-center gap-2 text-sm font-bold text-zinc-200">
-                    <PlusCircle size={18} className="text-indigo-400" />
-                    추가 요구사항
-                  </label>
-                  <textarea
-                    id="additional"
-                    name="additional"
-                    value={formData.additional}
-                    onChange={handleInputChange}
-                    placeholder="기타 특별히 원하는 기능이나 참고할 만한 사이트 URL 등을 자유롭게 적어주세요."
-                    rows={4}
-                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white placeholder:text-zinc-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all text-sm font-medium resize-none"
-                  />
+                  <div className="pt-2">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleAutoPlan}
+                      disabled={isPlanning || !formData.projectName || !formData.purpose}
+                      className="w-full py-4 px-4 bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 rounded-xl text-sm font-bold flex items-center justify-center gap-3 hover:bg-indigo-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-indigo-500/5 group"
+                    >
+                      {isPlanning ? (
+                        <div className="w-5 h-5 border-2 border-indigo-400/30 border-t-indigo-400 rounded-full animate-spin" />
+                      ) : (
+                        <Sparkles size={18} className="group-hover:animate-pulse" />
+                      )}
+                      기초 정보를 바탕으로 AI 상세 기획 자동 완성하기
+                    </motion.button>
+                  </div>
                 </div>
 
-                {/* Image Upload Section */}
-                <div className="space-y-3">
-                  <label className="flex items-center gap-2 text-sm font-bold text-zinc-200">
-                    <Palette size={18} className="text-indigo-400" />
-                    참고 이미지 첨부 (PNG, JPG)
-                  </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {formData.images.map((img, idx) => (
-                      <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-zinc-800 group">
-                        <img 
-                          src={`data:${img.mimeType};base64,${img.data}`} 
-                          alt={`Reference ${idx}`} 
-                          className="w-full h-full object-cover"
-                        />
-                        <button 
-                          onClick={() => removeImage(idx)}
-                          className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <X size={12} />
-                        </button>
-                      </div>
-                    ))}
-                    <label className="aspect-square rounded-xl border-2 border-dashed border-zinc-800 hover:border-indigo-500/50 flex flex-col items-center justify-center cursor-pointer transition-all hover:bg-indigo-500/5 group">
-                      <PlusCircle size={24} className="text-zinc-600 group-hover:text-indigo-400 mb-2" />
-                      <span className="text-[10px] text-zinc-500 group-hover:text-indigo-300 font-bold uppercase tracking-widest">이미지 추가</span>
-                      <input 
-                        type="file" 
-                        multiple 
-                        accept="image/png, image/jpeg" 
-                        onChange={handleImageUpload} 
-                        className="hidden" 
-                      />
-                    </label>
+                {/* 상세 기획 안내 섹션 */}
+                <div className="space-y-5">
+                  <div className="mb-4 space-y-1 pb-3 border-b border-zinc-800">
+                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                      <Sparkles className="text-indigo-400" size={18} /> 
+                      2. 상세 기획 (AI Optimized)
+                    </h3>
+                    <p className="text-sm text-zinc-400">AI가 제안한 상세 기획안입니다. 필요한 경우 직접 수정할 수 있습니다.</p>
                   </div>
-                  <p className="text-[10px] text-zinc-500">※ 첨부된 이미지는 AI가 디자인 스타일 및 레이아웃 분석용으로 참고합니다.</p>
+
+                  {detailFields.map((field) => (
+                    <div key={field.id} className="space-y-2">
+                      <label htmlFor={field.id} className="flex items-center gap-2 text-sm font-bold text-zinc-200">
+                        {field.icon}
+                        {field.label}
+                      </label>
+                      <input
+                        type="text"
+                        id={field.id}
+                        name={field.id}
+                        value={formData[field.id as keyof typeof formData] as string}
+                        onChange={handleInputChange}
+                        placeholder={field.placeholder}
+                        className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white placeholder:text-zinc-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all text-sm font-medium"
+                      />
+                    </div>
+                  ))}
+
+                  <div className="space-y-2">
+                    <label htmlFor="additional" className="flex items-center gap-2 text-sm font-bold text-zinc-200">
+                      <PlusCircle size={18} className="text-indigo-400" />
+                      추가 요구사항
+                    </label>
+                    <textarea
+                      id="additional"
+                      name="additional"
+                      value={formData.additional}
+                      onChange={handleInputChange}
+                      placeholder="기타 특별히 원하는 기능이나 참고할 만한 사이트 URL 등을 자유롭게 적어주세요."
+                      rows={4}
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white placeholder:text-zinc-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all text-sm font-medium resize-none"
+                    />
+                  </div>
+
+                  {/* Image Upload Section */}
+                  <div className="space-y-3">
+                    <label className="flex items-center gap-2 text-sm font-bold text-zinc-200">
+                      <Palette size={18} className="text-indigo-400" />
+                      참고 이미지 첨부 (PNG, JPG)
+                    </label>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {formData.images.map((img, idx) => (
+                        <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-zinc-800 group">
+                          <img 
+                            src={`data:${img.mimeType};base64,${img.data}`} 
+                            alt={`Reference ${idx}`} 
+                            className="w-full h-full object-cover"
+                          />
+                          <button 
+                            onClick={() => removeImage(idx)}
+                            className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X size={12} />
+                          </button>
+                        </div>
+                      ))}
+                      <label className="aspect-square rounded-xl border-2 border-dashed border-zinc-800 hover:border-indigo-500/50 flex flex-col items-center justify-center cursor-pointer transition-all hover:bg-indigo-500/5 group">
+                        <PlusCircle size={24} className="text-zinc-600 group-hover:text-indigo-400 mb-2" />
+                        <span className="text-[10px] text-zinc-500 group-hover:text-indigo-300 font-bold uppercase tracking-widest">이미지 추가</span>
+                        <input 
+                          type="file" 
+                          multiple 
+                          accept="image/png, image/jpeg" 
+                          onChange={handleImageUpload} 
+                          className="hidden" 
+                        />
+                      </label>
+                    </div>
+                    <p className="text-[10px] text-zinc-500">※ 첨부된 이미지는 AI가 디자인 스타일 및 레이아웃 분석용으로 참고합니다.</p>
+                  </div>
                 </div>
               </div>
 
