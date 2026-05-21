@@ -21,6 +21,8 @@ export default function App() {
   const [formData, setFormData] = useState({
     projectName: '',
     purpose: '',
+    websiteType: '랜딩페이지(1 Page)',
+    requiresAuth: 'X',
     coreValue: '',
     businessModel: '',
     references: '',
@@ -46,6 +48,18 @@ export default function App() {
   const [error, setError] = useState('');
 
   const patchNotes = [
+    { 
+      version: 'v1.13.0', 
+      date: '2026-05-21', 
+      title: '로그인/회원가입 기능 선택 옵션 추가', 
+      changes: ['기초 정보 입력란에 로그인/회원가입 기능 추가 유무(O, X) 선택 섹션 탑재', '기본값으로 일반 비로그인 환경(X) 설정 및 AI 기획 연동 반영'] 
+    },
+    { 
+      version: 'v1.12.0', 
+      date: '2026-05-21', 
+      title: '홈페이지 종류 선택 기능 추가', 
+      changes: ['기초 정보 입력란에 홈페이지 종류 선택 드롭다운 탑재', '기본값으로 랜딩페이지(1 Page) 설정 및 기획 반영'] 
+    },
     { 
       version: 'v1.11.0', 
       date: '2026-05-09', 
@@ -114,7 +128,7 @@ export default function App() {
     }
   ];
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
@@ -169,6 +183,8 @@ export default function App() {
       const prompt = `
         다음 기초 정보를 바탕으로 웹사이트 기획안을 완성해주세요.
         - 프로젝트 이름: ${formData.projectName}
+        - 홈페이지 종류: ${formData.websiteType}
+        - 로그인/회원가입 기능 추가 유무: ${formData.requiresAuth === 'O' ? '필요함 (O)' : '필요하지 않음 (X)'}
         - 웹사이트 목적: ${formData.purpose}
         - 핵심 가치/차별점: ${formData.coreValue || '특별히 지정되지 않음'}
         - 서비스 형태/비즈니스 모델: ${formData.businessModel || '특별히 지정되지 않음'}
@@ -241,6 +257,8 @@ export default function App() {
 
 [사용자 요구사항]
 - 프로젝트 이름: ${formData.projectName || '미정'}
+- 홈페이지 종류: ${formData.websiteType || '랜딩페이지(1 Page)'}
+- 로그인/회원가입 기능 추가 유무: ${formData.requiresAuth === 'O' ? '필요함 (O)' : '필요하지 않음 (X)'}
 - 웹사이트 목적: ${formData.purpose || '미정'}
 - 핵심 가치/차별점: ${formData.coreValue || '미정'}
 - 서비스 형태: ${formData.businessModel || '미정'}
@@ -315,6 +333,8 @@ ${formData.images.length > 0 ? '\n[시각적 참고 자료]\n사용자가 이미
 
   const basicFields = [
     { id: 'projectName', label: '프로젝트 이름', icon: <FileText size={18} className="text-indigo-400" />, placeholder: '예: 혁신적인 AI 포트폴리오 사이트' },
+    { id: 'websiteType', label: '홈페이지 종류', icon: <Layout size={18} className="text-indigo-400" />, type: 'select', options: ['랜딩페이지(1 Page)', '기업 및 서비스 다중 페이지', '포트폴리오 사이트', '블로그 / 컨텐츠 미디어', 'B2B/B2C SaaS 플랫폼', '쇼핑몰 / 이커머스', '포털 / 커뮤니티 및 기타'] },
+    { id: 'requiresAuth', label: '로그인/회원가입 기능 추가 유무', icon: <Key size={18} className="text-indigo-400" />, type: 'radio', options: ['O', 'X'] },
     { id: 'purpose', label: '웹사이트 목적', icon: <Layout size={18} className="text-indigo-400" />, placeholder: '예: 개인 포트폴리오 전시 및 프리랜서 문의 접수' },
     { id: 'coreValue', label: '핵심 가치 및 차별점', icon: <Sparkles size={18} className="text-indigo-400" />, placeholder: '예: 10배 빠른 처리, 혁신적인 UI/UX' },
     { id: 'businessModel', label: '서비스 형태 / 수익 모델', icon: <Users size={18} className="text-indigo-400" />, placeholder: '예: B2B SaaS 구독형, 무료 커뮤니티' },
@@ -551,15 +571,54 @@ ${formData.images.length > 0 ? '\n[시각적 참고 자료]\n사용자가 이미
                         {field.icon}
                         {field.label}
                       </label>
-                      <input
-                        type="text"
-                        id={field.id}
-                        name={field.id}
-                        value={formData[field.id as keyof typeof formData] as string}
-                        onChange={handleInputChange}
-                        placeholder={field.placeholder}
-                        className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white placeholder:text-zinc-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all text-sm font-medium"
-                      />
+                      {field.type === 'select' ? (
+                        <select
+                          id={field.id}
+                          name={field.id}
+                          value={formData[field.id as keyof typeof formData] as string}
+                          onChange={handleInputChange}
+                          className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all text-sm font-medium"
+                        >
+                          {field.options?.map((option) => (
+                            <option key={option} value={option} className="bg-zinc-900 text-white">
+                              {option}
+                            </option>
+                          ))}
+                        </select>
+                      ) : field.type === 'radio' ? (
+                        <div className="flex gap-4">
+                          {field.options?.map((option) => {
+                            const isSelected = formData[field.id as keyof typeof formData] === option;
+                            return (
+                              <button
+                                key={option}
+                                type="button"
+                                onClick={() => setFormData(prev => ({ ...prev, [field.id]: option }))}
+                                className={`flex-1 py-3 px-4 rounded-xl text-center font-bold text-sm transition-all border flex items-center justify-center gap-2 ${
+                                  isSelected
+                                    ? 'bg-indigo-500/10 border-indigo-500 text-indigo-400 font-extrabold shadow-lg shadow-indigo-500/5'
+                                    : 'bg-zinc-950 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700'
+                                }`}
+                              >
+                                <span className={`w-4 h-4 rounded-full border flex items-center justify-center ${isSelected ? 'border-indigo-500 bg-indigo-500/20' : 'border-zinc-700'}`}>
+                                  {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />}
+                                </span>
+                                {option === 'O' ? '필요함 (O)' : '필요없음 (X)'}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <input
+                          type="text"
+                          id={field.id}
+                          name={field.id}
+                          value={formData[field.id as keyof typeof formData] as string}
+                          onChange={handleInputChange}
+                          placeholder={field.placeholder}
+                          className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white placeholder:text-zinc-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all text-sm font-medium"
+                        />
+                      )}
                     </div>
                   ))}
 
