@@ -49,6 +49,12 @@ export default function App() {
 
   const patchNotes = [
     { 
+      version: 'v1.14.0', 
+      date: '2026-05-22', 
+      title: '홈페이지 종류 세분화 추가', 
+      changes: ['홈페이지 선택 드롭다운 항목에 생산성 앱/툴, 마케팅 플랫폼 등 자주 쓰이는 홈페이지 종류 추가'] 
+    },
+    { 
       version: 'v1.13.0', 
       date: '2026-05-21', 
       title: '로그인/회원가입 기능 선택 옵션 추가', 
@@ -333,7 +339,7 @@ ${formData.images.length > 0 ? '\n[시각적 참고 자료]\n사용자가 이미
 
   const basicFields = [
     { id: 'projectName', label: '프로젝트 이름', icon: <FileText size={18} className="text-indigo-400" />, placeholder: '예: 혁신적인 AI 포트폴리오 사이트' },
-    { id: 'websiteType', label: '홈페이지 종류', icon: <Layout size={18} className="text-indigo-400" />, type: 'select', options: ['랜딩페이지(1 Page)', '기업 및 서비스 다중 페이지', '포트폴리오 사이트', '블로그 / 컨텐츠 미디어', 'B2B/B2C SaaS 플랫폼', '쇼핑몰 / 이커머스', '포털 / 커뮤니티 및 기타'] },
+    { id: 'websiteType', label: '홈페이지 종류', icon: <Layout size={18} className="text-indigo-400" />, type: 'select', options: ['랜딩페이지(1 Page)', '기업 및 서비스 다중 페이지', '포트폴리오 사이트', '블로그 / 컨텐츠 미디어', 'B2B/B2C SaaS 플랫폼', '쇼핑몰 / 이커머스', '생산성 앱 / 툴', '마케팅 플랫폼', '포털 / 커뮤니티 및 기타'] },
     { id: 'requiresAuth', label: '로그인/회원가입 기능 추가 유무', icon: <Key size={18} className="text-indigo-400" />, type: 'radio', options: ['O', 'X'] },
     { id: 'purpose', label: '웹사이트 목적', icon: <Layout size={18} className="text-indigo-400" />, placeholder: '예: 개인 포트폴리오 전시 및 프리랜서 문의 접수' },
     { id: 'coreValue', label: '핵심 가치 및 차별점', icon: <Sparkles size={18} className="text-indigo-400" />, placeholder: '예: 10배 빠른 처리, 혁신적인 UI/UX' },
