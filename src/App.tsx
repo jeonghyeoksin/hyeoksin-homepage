@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Key, CheckCircle, AlertCircle, Sparkles, Copy, ArrowRight, Code, Layout, Palette, Users, FileText, Settings, X, PlusCircle, Database, Package, Zap } from 'lucide-react';
+import { Key, CheckCircle, AlertCircle, Sparkles, Copy, ArrowRight, Code, Layout, Palette, Users, FileText, Settings, X, PlusCircle, Database, Package, Zap, Languages } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
 import ReactMarkdown from 'react-markdown';
 
@@ -23,6 +23,7 @@ export default function App() {
     purpose: '',
     websiteType: '랜딩페이지(1 Page)',
     requiresAuth: 'X',
+    designLanguage: '한국어',
     coreValue: '',
     businessModel: '',
     references: '',
@@ -48,6 +49,12 @@ export default function App() {
   const [error, setError] = useState('');
 
   const patchNotes = [
+    { 
+      version: 'v1.15.0', 
+      date: '2026-06-02', 
+      title: '디자인 언어 선택 기능 추가', 
+      changes: ['기초 정보 입력란에 기획할 홈페이지의 디자인 언어 선택 드롭다운 추가', '한국어를 기본값으로 설정하고 AI 기획 완성 및 프롬프트 생성 로직에 다국어 지침 연동 완료'] 
+    },
     { 
       version: 'v1.14.0', 
       date: '2026-05-22', 
@@ -190,11 +197,14 @@ export default function App() {
         다음 기초 정보를 바탕으로 웹사이트 기획안을 완성해주세요.
         - 프로젝트 이름: ${formData.projectName}
         - 홈페이지 종류: ${formData.websiteType}
+        - 디자인 언어: ${formData.designLanguage}
         - 로그인/회원가입 기능 추가 유무: ${formData.requiresAuth === 'O' ? '필요함 (O)' : '필요하지 않음 (X)'}
         - 웹사이트 목적: ${formData.purpose}
         - 핵심 가치/차별점: ${formData.coreValue || '특별히 지정되지 않음'}
         - 서비스 형태/비즈니스 모델: ${formData.businessModel || '특별히 지정되지 않음'}
         - 참고 사이트/벤치마킹: ${formData.references || '특별히 지정되지 않음'}
+
+        **중요**: 기획안의 모든 세부 제안 내용(타겟 고객, 브랜드 보이스, 주요 기능, 핵심 호출 문구 등 모든 필드의 텍스트 값)은 반드시 사용자가 선택한 디자인 언어(${formData.designLanguage})로 작성해 주십시오.
 
         다음 항목들에 대해 가장 적절하고 매력적인 내용을 제안해주세요:
         1. 타겟 고객
@@ -264,6 +274,7 @@ export default function App() {
 [사용자 요구사항]
 - 프로젝트 이름: ${formData.projectName || '미정'}
 - 홈페이지 종류: ${formData.websiteType || '랜딩페이지(1 Page)'}
+- 디자인 언어: ${formData.designLanguage || '한국어'}
 - 로그인/회원가입 기능 추가 유무: ${formData.requiresAuth === 'O' ? '필요함 (O)' : '필요하지 않음 (X)'}
 - 웹사이트 목적: ${formData.purpose || '미정'}
 - 핵심 가치/차별점: ${formData.coreValue || '미정'}
@@ -294,7 +305,7 @@ ${formData.images.length > 0 ? '\n[시각적 참고 자료]\n사용자가 이미
 [출력 규칙]
 1. "이 프롬프트를 복사하여..." 같은 안내 문구 없이, 오직 생성된 **프롬프트 본문**만 출력하세요.
 2. 마크다운 형식을 사용하여 구조화하세요.
-3. 한국어를 기본으로 하되, 기술 용어는 영어를 혼용하여 정확도를 높이세요.
+3. 결과물(웹사이트 전체 레이아웃, 텍스트 콘텐츠, 유저 인터페이스 등)은 반드시 사용자가 선택한 디자인 언어(${formData.designLanguage})로 구현될 수 있도록 정교하게 설계하여 작성하세요. 기술 용어나 설명은 상황공유를 위해 영어를 보조적으로 사용해도 좋습니다.
 4. 결과물이 '매력적인 홈페이지'가 될 수 있도록 트렌디한 디자인 요소를 적극 제안하세요.
 `;
 
@@ -341,6 +352,7 @@ ${formData.images.length > 0 ? '\n[시각적 참고 자료]\n사용자가 이미
     { id: 'projectName', label: '프로젝트 이름', icon: <FileText size={18} className="text-indigo-400" />, placeholder: '예: 혁신적인 AI 포트폴리오 사이트' },
     { id: 'websiteType', label: '홈페이지 종류', icon: <Layout size={18} className="text-indigo-400" />, type: 'select', options: ['랜딩페이지(1 Page)', '기업 및 서비스 다중 페이지', '포트폴리오 사이트', '블로그 / 컨텐츠 미디어', 'B2B/B2C SaaS 플랫폼', '쇼핑몰 / 이커머스', '생산성 앱 / 툴', '마케팅 플랫폼', '포털 / 커뮤니티 및 기타'] },
     { id: 'requiresAuth', label: '로그인/회원가입 기능 추가 유무', icon: <Key size={18} className="text-indigo-400" />, type: 'radio', options: ['O', 'X'] },
+    { id: 'designLanguage', label: '디자인 언어', icon: <Languages size={18} className="text-indigo-400" />, type: 'select', options: ['한국어', '영어', '일본어', '중국어', '스페인어', '프랑스어', '독일어', '기타'] },
     { id: 'purpose', label: '웹사이트 목적', icon: <Layout size={18} className="text-indigo-400" />, placeholder: '예: 개인 포트폴리오 전시 및 프리랜서 문의 접수' },
     { id: 'coreValue', label: '핵심 가치 및 차별점', icon: <Sparkles size={18} className="text-indigo-400" />, placeholder: '예: 10배 빠른 처리, 혁신적인 UI/UX' },
     { id: 'businessModel', label: '서비스 형태 / 수익 모델', icon: <Users size={18} className="text-indigo-400" />, placeholder: '예: B2B SaaS 구독형, 무료 커뮤니티' },
