@@ -5,18 +5,19 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Key, CheckCircle, AlertCircle, Sparkles, Copy, ArrowRight, Code, Layout, Palette, Users, FileText, Settings, X, PlusCircle, Database, Package, Zap, Languages, ExternalLink } from 'lucide-react';
+import { Key, CheckCircle, AlertCircle, Sparkles, Copy, ArrowRight, Code, Layout, Palette, Users, FileText, Settings, X, PlusCircle, Database, Package, Zap, Languages, ExternalLink, Eye, EyeOff } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
 import ReactMarkdown from 'react-markdown';
 
 export default function App() {
-  const [apiKey, setApiKey] = useState(process.env.GEMINI_API_KEY || '');
+  const [apiKey, setApiKey] = useState(() => localStorage.getItem('gemini_api_key') || process.env.GEMINI_API_KEY || '');
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
   const [showInquiryModal, setShowInquiryModal] = useState(false);
   const [showCostModal, setShowCostModal] = useState(false);
   const [showGuideModal, setShowGuideModal] = useState(false);
   const [showPatchNotesModal, setShowPatchNotesModal] = useState(false);
   const [tempApiKey, setTempApiKey] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [activeDetailTab, setActiveDetailTab] = useState<'branding' | 'design' | 'engineering'>('branding');
   
   const [formData, setFormData] = useState({
@@ -50,6 +51,24 @@ export default function App() {
   const [error, setError] = useState('');
 
   const patchNotes = [
+    { 
+      version: 'v1.16.4', 
+      date: '2026-06-03', 
+      title: 'API Key 가시성 토글(눈동자 버튼) 기능 추가', 
+      changes: [
+        'API Key 설정 모달 내 입력 칸 우측에 눈동자 아이콘 버튼 추가',
+        '원클릭으로 자신이 입력한 API Key를 텍스트 형태로 간편하게 확인하거나 숨길 수 있도록 토글 인터랙션 구현'
+      ] 
+    },
+    { 
+      version: 'v1.16.3', 
+      date: '2026-06-03', 
+      title: 'API Key 자동 로컬 저장 기능 추가', 
+      changes: [
+        '사용자가 입력한 Gemini API Key를 브라우저 로컬 저장소(localStorage)에 안전하게 영구 저장',
+        '해당 PC에서 다시 접속 시 동일한 API Key를 자동으로 유지하여 매번 입력할 필요 없도록 개선'
+      ] 
+    },
     { 
       version: 'v1.16.2', 
       date: '2026-06-03', 
@@ -203,6 +222,7 @@ export default function App() {
   };
 
   const handleSaveApiKey = () => {
+    localStorage.setItem('gemini_api_key', tempApiKey);
     setApiKey(tempApiKey);
     setShowApiKeyModal(false);
   };
@@ -482,17 +502,27 @@ ${formData.images.length > 0 ? '\n[시각적 참고 자료]\n사용자가 이미
                 </button>
               </div>
               <p className="text-sm text-zinc-400 mb-6 leading-relaxed">
-                웹 배포 환경에서 프롬프트를 생성하려면 Gemini API Key가 필요합니다. 입력하신 키는 브라우저 메모리에만 임시 저장되며 서버로 전송되지 않습니다.
+                웹 배포 환경에서 프롬프트를 생성하려면 Gemini API Key가 필요합니다. 입력하신 키는 브라우저 로컬 저장소(localStorage)에 안전하게 자동 저장되어 해당 PC에서 계속 유지되며, 서버로 전혀 전송되지 않습니다.
               </p>
               <div className="space-y-2 mb-6">
                 <label className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Gemini API Key</label>
-                <input 
-                  type="password"
-                  placeholder="AIzaSy..."
-                  value={tempApiKey}
-                  onChange={(e) => setTempApiKey(e.target.value)}
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
-                />
+                <div className="relative flex items-center">
+                  <input 
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="AIzaSy..."
+                    value={tempApiKey}
+                    onChange={(e) => setTempApiKey(e.target.value)}
+                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl pl-4 pr-11 py-3 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-sm font-mono tracking-wide"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 p-1.5 rounded-lg text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
+                    title={showPassword ? '비밀번호 숨기기' : '비밀번호 보기'}
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
               </div>
               <div className="flex justify-end gap-3">
                 <button 
