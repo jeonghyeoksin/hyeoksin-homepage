@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Key, CheckCircle, AlertCircle, Sparkles, Copy, ArrowRight, Code, Layout, Palette, Users, FileText, Settings, X, PlusCircle, Database, Package, Zap, Languages } from 'lucide-react';
+import { Key, CheckCircle, AlertCircle, Sparkles, Copy, ArrowRight, Code, Layout, Palette, Users, FileText, Settings, X, PlusCircle, Database, Package, Zap, Languages, ExternalLink } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
 import ReactMarkdown from 'react-markdown';
 
@@ -17,6 +17,7 @@ export default function App() {
   const [showGuideModal, setShowGuideModal] = useState(false);
   const [showPatchNotesModal, setShowPatchNotesModal] = useState(false);
   const [tempApiKey, setTempApiKey] = useState('');
+  const [activeDetailTab, setActiveDetailTab] = useState<'branding' | 'design' | 'engineering'>('branding');
   
   const [formData, setFormData] = useState({
     projectName: '',
@@ -49,6 +50,35 @@ export default function App() {
   const [error, setError] = useState('');
 
   const patchNotes = [
+    { 
+      version: 'v1.16.2', 
+      date: '2026-06-03', 
+      title: '구글 AI 스튜디오 Build 이동 버튼 탑재', 
+      changes: [
+        '생성된 프롬프트 영역 하단에 구글 AI 스튜디오 Build 바로가기 버튼 추가',
+        '버튼 선택 시 해당 페이지(https://aistudio.google.com/apps)로 신규 탭 전환 및 이동하도록 구현'
+      ] 
+    },
+    { 
+      version: 'v1.16.1', 
+      date: '2026-06-03', 
+      title: '브랜드 로고 프로젝트명 실시간 100% 동기화', 
+      changes: [
+        '좌측 상단 브랜드 로고 및 타이틀 섹션 추가 구현',
+        '사용자가 입력한 프로젝트 이름(projectName)과 실시간으로 100% 일치하여 업데이트되도록 연동 완료'
+      ] 
+    },
+    { 
+      version: 'v1.16.0', 
+      date: '2026-06-03', 
+      title: '상세 기획 비주얼 고도화 및 필수 기입란 정밀 표시', 
+      changes: [
+        '기초 정보 필수 항목(선택 필수) 빨간색 별표(*) 및 선택사항 조절 안내',
+        '홈페이지 종류 기본 드롭다운 카테고리에 강의 플랫폼 추가 신설',
+        '상세 기획(AI Optimized) 부문의 11가지 상세 설정을 3가지 비주얼 탭 단위로 전면 리비전 개편',
+        '상세 기획 각 설정란 하단에 클릭형 추천 에셋 프리셋 칩을 탑재하여 초보자도 원터치로 구성 가능하도록 UI 기능 확장'
+      ] 
+    },
     { 
       version: 'v1.15.0', 
       date: '2026-06-02', 
@@ -349,32 +379,44 @@ ${formData.images.length > 0 ? '\n[시각적 참고 자료]\n사용자가 이미
   };
 
   const basicFields = [
-    { id: 'projectName', label: '프로젝트 이름', icon: <FileText size={18} className="text-indigo-400" />, placeholder: '예: 혁신적인 AI 포트폴리오 사이트' },
-    { id: 'websiteType', label: '홈페이지 종류', icon: <Layout size={18} className="text-indigo-400" />, type: 'select', options: ['랜딩페이지(1 Page)', '기업 및 서비스 다중 페이지', '포트폴리오 사이트', '블로그 / 컨텐츠 미디어', 'B2B/B2C SaaS 플랫폼', '쇼핑몰 / 이커머스', '생산성 앱 / 툴', '마케팅 플랫폼', '포털 / 커뮤니티 및 기타'] },
-    { id: 'requiresAuth', label: '로그인/회원가입 기능 추가 유무', icon: <Key size={18} className="text-indigo-400" />, type: 'radio', options: ['O', 'X'] },
-    { id: 'designLanguage', label: '디자인 언어', icon: <Languages size={18} className="text-indigo-400" />, type: 'select', options: ['한국어', '영어', '일본어', '중국어', '스페인어', '프랑스어', '독일어', '기타'] },
-    { id: 'purpose', label: '웹사이트 목적', icon: <Layout size={18} className="text-indigo-400" />, placeholder: '예: 개인 포트폴리오 전시 및 프리랜서 문의 접수' },
+    { id: 'projectName', label: '프로젝트 이름', icon: <FileText size={18} className="text-indigo-400" />, placeholder: '예: 혁신적인 AI 포트폴리오 사이트', required: true },
+    { id: 'websiteType', label: '홈페이지 종류', icon: <Layout size={18} className="text-indigo-400" />, type: 'select', options: ['랜딩페이지(1 Page)', '기업 및 서비스 다중 페이지', '포트폴리오 사이트', '블로그 / 컨텐츠 미디어', 'B2B/B2C SaaS 플랫폼', '쇼핑몰 / 이커머스', '생산성 앱 / 툴', '마케팅 플랫폼', '강의 플랫폼', '포털 / 커뮤니티 및 기타'], required: true },
+    { id: 'requiresAuth', label: '로그인/회원가입 기능 추가 유무', icon: <Key size={18} className="text-indigo-400" />, type: 'radio', options: ['O', 'X'], required: true },
+    { id: 'designLanguage', label: '디자인 언어', icon: <Languages size={18} className="text-indigo-400" />, type: 'select', options: ['한국어', '영어', '일본어', '중국어', '스페인어', '프랑스어', '독일어', '기타'], required: true },
+    { id: 'purpose', label: '웹사이트 목적', icon: <Layout size={18} className="text-indigo-400" />, placeholder: '예: 개인 포트폴리오 전시 및 프리랜서 문의 접수', required: true },
     { id: 'coreValue', label: '핵심 가치 및 차별점', icon: <Sparkles size={18} className="text-indigo-400" />, placeholder: '예: 10배 빠른 처리, 혁신적인 UI/UX' },
     { id: 'businessModel', label: '서비스 형태 / 수익 모델', icon: <Users size={18} className="text-indigo-400" />, placeholder: '예: B2B SaaS 구독형, 무료 커뮤니티' },
     { id: 'references', label: '참고 사이트 / 벤치마킹', icon: <ArrowRight size={18} className="text-indigo-400" />, placeholder: '예: Apple처럼 깔끔한 레이아웃' },
   ];
 
   const detailFields = [
-    { id: 'targetAudience', label: '타겟 고객', icon: <Users size={18} className="text-indigo-400" />, placeholder: '예: IT 기업 채용 담당자, 스타트업 대표' },
-    { id: 'brandVoice', label: '브랜드 보이스/톤', icon: <Sparkles size={18} className="text-indigo-400" />, placeholder: '예: 신뢰감 있는 전문적인 톤, 혹은 친근하고 따뜻한 톤' },
-    { id: 'features', label: '주요 기능', icon: <Code size={18} className="text-indigo-400" />, placeholder: '예: 다크모드, 프로젝트 갤러리 필터링, 문의 폼' },
-    { id: 'cta', label: '핵심 호출 문구 (CTA)', icon: <ArrowRight size={18} className="text-indigo-400" />, placeholder: '예: 지금 시작하기, 무료 상담 신청' },
-    { id: 'style', label: '디자인 스타일/분위기', icon: <Palette size={18} className="text-indigo-400" />, placeholder: '예: 미니멀하고 미래지향적인 다크 테마' },
-    { id: 'pages', label: '필요한 페이지', icon: <Layout size={18} className="text-indigo-400" />, placeholder: '예: 홈, 소개, 프로젝트, 이력서, 연락처' },
-    { id: 'colors', label: '메인 색상', icon: <Palette size={18} className="text-indigo-400" />, placeholder: '예: 배경은 진한 회색, 포인트 컬러는 네온 퍼플' },
-    { id: 'keyAssets', label: '주요 시각적 요소', icon: <Sparkles size={18} className="text-indigo-400" />, placeholder: '예: 고해상도 인물 사진, 추상적인 3D 그래픽' },
-    { id: 'animations', label: '애니메이션 및 상호작용', icon: <Zap size={18} className="text-indigo-400" />, placeholder: '예: 부드러운 스크롤, Framer Motion을 활용한 요소 등장 효과' },
-    { id: 'dataPersistence', label: '데이터 관리 방식', icon: <Database size={18} className="text-indigo-400" />, placeholder: '예: LocalStorage를 활용한 데이터 유지, 상태 관리' },
-    { id: 'libraries', label: '필요한 컴포넌트/라이브러리', icon: <Package size={18} className="text-indigo-400" />, placeholder: '예: shadcn/ui, Recharts, Lucide-react' },
+    { id: 'targetAudience', label: '타겟 고객', icon: <Users size={18} className="text-indigo-400" />, group: 'branding', placeholder: '예: IT 기업 채용 담당자, 스타트업 대표', presets: ["2030 직장인", "대학생 및 취준생", "소상공인 및 자영업자", "IT 기업 고위 임원"] },
+    { id: 'brandVoice', label: '브랜드 보이스/톤', icon: <Sparkles size={18} className="text-indigo-400" />, group: 'branding', placeholder: '예: 신뢰감 있는 전문적인 톤, 혹은 친근하고 따뜻한 톤', presets: ["전문적이고 신뢰성 높은 톤", "친근하고 상냥한 대화형 톤", "감각적이고 세련된 트렌디 톤", "절제되고 직관적인 기술전문가 톤"] },
+    { id: 'cta', label: '핵심 호출 문구 (CTA)', icon: <ArrowRight size={18} className="text-indigo-400" />, group: 'branding', placeholder: '예: 지금 시작하기, 무료 상담 신청', presets: ["지금 무료로 시작하기", "더 상세히 알아보기", "포트폴리오 바로 감상하기", "맞춤형 1:1 상담 예약하기"] },
+    { id: 'features', label: '주요 기능', icon: <Code size={18} className="text-indigo-400" />, group: 'branding', placeholder: '예: 다크모드, 프로젝트 갤러리 필터링, 문의 폼', presets: ["실시간 동적 데이터 대시보드", "인터랙션 그리드 포트폴리오 갤러리", "사용자 맞춤 이메일 상담 접수 폼", "간편 소셜 로그인 및 마이페이지 통합"] },
+    
+    { id: 'style', label: '디자인 스타일/분위기', icon: <Palette size={18} className="text-indigo-400" />, group: 'design', placeholder: '예: 미니멀하고 미래지향적인 다크 테마', presets: ["미니멀하고 극도로 정교한 현대적 레이아웃", "미래지향적이고 입체적인 네온 다크 테마", "포근하고 정겨운 내추럴 감성 웹스타일", "비비드하고 에너지 넘치는 스타일링"] },
+    { id: 'colors', label: '메인 색상', icon: <Palette size={18} className="text-indigo-400" />, group: 'design', placeholder: '예: 배경은 진한 회색, 포인트 컬러는 네온 퍼플', presets: ["배경: 완벽한 블랙, 포인트: 라이트 일렉트릭 블루", "배경: 부드러운 우유빛 아이보리, 포인트: 올리브 그린", "배경: 깔끔한 화이트, 포인트: 클래식 로열 블루", "배경: 다크 슬레이트 그레이, 포인트: 에너제틱 오렌지"] },
+    { id: 'keyAssets', label: '주요 시각적 요소', icon: <Sparkles size={18} className="text-indigo-400" />, group: 'design', placeholder: '예: 고해상도 인물 사진, 추상적인 3D 그래픽', presets: ["고해상도 리얼리티 인물/스튜디오 라이브 포토", "초격차 테크니컬 3D 렌더링 일러스트", "심플하고 가시성 높은 미니멀 플랫 아이콘", "추상적인 유동형 그라데이션 기하학 백그라운드"] },
+    { id: 'pages', label: '필요한 페이지', icon: <Layout size={18} className="text-indigo-400" />, group: 'design', placeholder: '예: 홈, 소개, 프로젝트, 이력서, 연락처', presets: ["원페이지(1 Page) 롱스크롤 구성", "소개 - 서비스 목록 - 요금 플랜 - Q&A - 문의", "회원가입 - 대시보드 제어판 - 마이페이지 데이터", "포트폴리오 요약 그리드 - 작품 전문 상세 화면"] },
+    
+    { id: 'animations', label: '애니메이션 및 상호작용', icon: <Zap size={18} className="text-indigo-400" />, group: 'engineering', placeholder: '예: 부드러운 스크롤, Framer Motion을 활용한 요소 등장 효과', presets: ["Framer Motion 고퀄리티 스태거 스무스 페이드", "스크롤 바인딩 패럴랙스 & 스티키 헤더 고정", "3D 입체 카드 플립 극대화 마우스호버 마이크로 인터랙션", "심플 스무딩 무빙 & 로딩 트랜지션 시그널"] },
+    { id: 'dataPersistence', label: '데이터 관리 방식', icon: <Database size={18} className="text-indigo-400" />, group: 'engineering', placeholder: '예: LocalStorage를 활용한 데이터 유지, 상태 관리', presets: ["영구 브라우저 LocalStorage 이용 상태 보존", "순수 React Context API 임시 캐싱 컨트롤", "실시간 데이터 전용 Firebase Firestore 클라우드 원격 저장", "Express 백엔드 독립 REST API 및 세키리티 미들웨어 연동"] },
+    { id: 'libraries', label: '필요한 컴포넌트/라이브러리', icon: <Package size={18} className="text-indigo-400" />, group: 'engineering', placeholder: '예: shadcn/ui, Recharts, Lucide-react', presets: ["framer-motion, lucide-react", "shadcn/ui, @radix-ui, tailwindcss", "recharts, d3 for dynamic charts", "zustand, @tanstack/react-query for api"] },
   ];
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-50 font-sans selection:bg-indigo-500/30 pb-20">
+      {/* Top-Left Dynamic Brand Logo & Project Name */}
+      <div className="fixed top-4 left-4 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-full backdrop-blur-md border border-zinc-800 bg-zinc-900/50 text-white shadow-lg">
+        <div className="p-1 bg-indigo-500/10 rounded-lg border border-indigo-500/20 flex items-center justify-center">
+          <Sparkles size={16} className="text-indigo-400 animate-pulse" />
+        </div>
+        <span className="text-sm font-bold tracking-tight text-zinc-200">
+          {formData.projectName || '혁신 홈페이지 개발 AI'}
+        </span>
+      </div>
+
       {/* API Key Status Button */}
       <div className="fixed top-4 right-4 z-50 flex gap-2">
         <button 
@@ -585,9 +627,16 @@ ${formData.images.length > 0 ? '\n[시각적 참고 자료]\n사용자가 이미
                   
                   {basicFields.map((field) => (
                     <div key={field.id} className="space-y-2">
-                      <label htmlFor={field.id} className="flex items-center gap-2 text-sm font-bold text-zinc-200">
-                        {field.icon}
-                        {field.label}
+                      <label htmlFor={field.id} className="flex items-center gap-2 text-sm font-bold text-zinc-200 w-full">
+                        <span className="flex items-center gap-2">
+                          {field.icon}
+                          {field.label}
+                        </span>
+                        {field.required ? (
+                          <span className="text-red-500 font-black text-sm ml-0.5" title="필수 구성 항목">*</span>
+                        ) : (
+                          <span className="text-zinc-500 font-semibold text-[11px] ml-auto">(선택)</span>
+                        )}
                       </label>
                       {field.type === 'select' ? (
                         <select
@@ -665,26 +714,104 @@ ${formData.images.length > 0 ? '\n[시각적 참고 자료]\n사용자가 이미
                       <Sparkles className="text-indigo-400" size={18} /> 
                       2. 상세 기획 (AI Optimized)
                     </h3>
-                    <p className="text-sm text-zinc-400">AI가 제안한 상세 기획안입니다. 필요한 경우 직접 수정할 수 있습니다.</p>
+                    <p className="text-sm text-zinc-400">AI가 자동으로 채워주거나 직접 구성하는 상세 페이지입니다. (선택사항)</p>
                   </div>
 
-                  {detailFields.map((field) => (
-                    <div key={field.id} className="space-y-2">
-                      <label htmlFor={field.id} className="flex items-center gap-2 text-sm font-bold text-zinc-200">
-                        {field.icon}
-                        {field.label}
-                      </label>
-                      <input
-                        type="text"
-                        id={field.id}
-                        name={field.id}
-                        value={formData[field.id as keyof typeof formData] as string}
-                        onChange={handleInputChange}
-                        placeholder={field.placeholder}
-                        className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white placeholder:text-zinc-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all text-sm font-medium"
-                      />
-                    </div>
-                  ))}
+                  {/* 세련된 Tab 디자인 */}
+                  <div className="grid grid-cols-3 gap-1 p-1 bg-zinc-950 border border-zinc-900 rounded-xl">
+                    <button
+                      type="button"
+                      onClick={() => setActiveDetailTab('branding')}
+                      className={`py-2.5 px-1 text-center font-bold text-[11px] sm:text-xs rounded-lg transition-all ${
+                        activeDetailTab === 'branding'
+                          ? 'bg-indigo-600/20 border border-indigo-500/40 text-indigo-300 shadow-md shadow-indigo-600/5'
+                          : 'text-zinc-500 hover:text-zinc-300 border border-transparent'
+                      }`}
+                    >
+                      브랜딩 & 콘텐츠
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveDetailTab('design')}
+                      className={`py-2.5 px-1 text-center font-bold text-[11px] sm:text-xs rounded-lg transition-all ${
+                        activeDetailTab === 'design'
+                          ? 'bg-indigo-600/20 border border-indigo-500/40 text-indigo-300 shadow-md shadow-indigo-600/5'
+                          : 'text-zinc-500 hover:text-zinc-300 border border-transparent'
+                      }`}
+                    >
+                      비주얼 & 디자인
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveDetailTab('engineering')}
+                      className={`py-2.5 px-1 text-center font-bold text-[11px] sm:text-xs rounded-lg transition-all ${
+                        activeDetailTab === 'engineering'
+                          ? 'bg-indigo-600/20 border border-indigo-500/40 text-indigo-300 shadow-md shadow-indigo-600/5'
+                          : 'text-zinc-500 hover:text-zinc-300 border border-transparent'
+                      }`}
+                    >
+                      인터랙션 & 개발
+                    </button>
+                  </div>
+
+                  {/* 탭별 컨텐츠 필드 뷰포트 */}
+                  <div className="space-y-5">
+                    {detailFields
+                      .filter((field) => field.group === activeDetailTab)
+                      .map((field) => {
+                        const currentValue = (formData[field.id as keyof typeof formData] as string) || '';
+                        return (
+                          <div 
+                            key={field.id} 
+                            className="space-y-2 p-4 rounded-2xl bg-zinc-950 border border-zinc-800/80 hover:border-zinc-700/60 transition-all shadow-inner group"
+                          >
+                            <label htmlFor={field.id} className="flex items-center gap-2 text-xs font-bold text-zinc-300 w-full uppercase tracking-wider">
+                              <span className="flex items-center gap-2 text-zinc-400 group-hover:text-indigo-400 transition-colors">
+                                {field.icon}
+                                {field.label}
+                              </span>
+                              <span className="text-[10px] text-zinc-500 font-semibold ml-auto">(선택)</span>
+                            </label>
+                            
+                            <input
+                              type="text"
+                              id={field.id}
+                              name={field.id}
+                              value={currentValue}
+                              onChange={handleInputChange}
+                              placeholder={field.placeholder}
+                              className="w-full bg-zinc-900/60 border border-zinc-800 rounded-xl px-4 py-3 text-white placeholder:text-zinc-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-sm font-medium"
+                            />
+
+                            {/* Preset Chips */}
+                            {field.presets && (
+                              <div className="pt-2">
+                                <span className="text-[9px] text-zinc-500 font-bold block mb-1.5 uppercase tracking-widest">실시간 추천 에셋</span>
+                                <div className="flex flex-wrap gap-1.5">
+                                  {field.presets.map((preset) => {
+                                    const isSelected = currentValue === preset;
+                                    return (
+                                      <button
+                                        key={preset}
+                                        type="button"
+                                        onClick={() => setFormData(prev => ({ ...prev, [field.id]: preset }))}
+                                        className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all border ${
+                                          isSelected
+                                            ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500 font-extrabold shadow-sm shadow-indigo-500/10'
+                                            : 'bg-zinc-900 border-zinc-800/80 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700'
+                                        }`}
+                                      >
+                                        {preset}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                  </div>
 
                   <div className="space-y-2">
                     <label htmlFor="additional" className="flex items-center gap-2 text-sm font-bold text-zinc-200">
@@ -839,6 +966,20 @@ ${formData.images.length > 0 ? '\n[시각적 참고 자료]\n사용자가 이미
                     <p>여기에 완벽한 프롬프트가 나타납니다.</p>
                   </div>
                 )}
+              </div>
+
+              {/* 구글 AI 스튜디오 Build 바로가기 버튼 */}
+              <div className="mt-5">
+                <a
+                  href="https://aistudio.google.com/apps"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-4 px-6 rounded-2xl font-bold text-sm bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white flex items-center justify-center gap-2.5 transition-all shadow-lg shadow-indigo-500/10 hover:shadow-indigo-500/20 hover:scale-[1.01] active:scale-[0.99] group/btn border border-indigo-400/30"
+                >
+                  <Sparkles size={16} className="text-white shrink-0 animate-pulse" />
+                  <span>구글 AI 스튜디오 Build 바로가기</span>
+                  <ExternalLink size={15} className="text-indigo-200 shrink-0 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
+                </a>
               </div>
             </div>
           </div>
