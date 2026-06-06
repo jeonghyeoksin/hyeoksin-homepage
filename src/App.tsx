@@ -536,6 +536,15 @@ export default function App() {
 
   const patchNotes = [
     { 
+      version: 'v1.17.0', 
+      date: '2026-06-06', 
+      title: '웹사이트 목적 입력란 서술형 텍스트 영역으로 업그레이드', 
+      changes: [
+        '기존 단일 행 한 줄 입력란 형태의 웹사이트 목적 입력 폼을 글자 수 제한 없는 여러 행 텍스트 영역(Textarea)으로 전면 교체',
+        '원스톱 상세 목적 기획 및 장문 서사가 가능하도록 크기 자동 조절(resize-y) 및 사용자 편의성을 높인 레이아웃 적용 완료'
+      ] 
+    },
+    { 
       version: 'v1.16.9', 
       date: '2026-06-06', 
       title: '추천 기획 예시 탭 타이틀 문구 간소화', 
@@ -960,7 +969,7 @@ ${formData.images.length > 0 ? '\n[시각적 참고 자료]\n사용자가 이미
     { id: 'websiteType', label: '홈페이지 종류', icon: <Layout size={18} className="text-indigo-400" />, type: 'select', options: ['랜딩페이지(1 Page)', '기업 및 서비스 다중 페이지', '포트폴리오 사이트', '블로그 / 컨텐츠 미디어', 'B2B/B2C SaaS 플랫폼', '쇼핑몰 / 이커머스', '생산성 앱 / 툴', 'CRM(고객 관계 관리)', 'ERP (전사적 자원 관리)', 'LMS (학습 관리 시스템)', 'CMS (콘텐츠 관리 시스템)', '대시보드 / 어드민 페이지', '예약 및 매칭 플랫폼', '사내 인트라넷 / 그룹웨어', '마케팅 플랫폼', '강의 플랫폼', '부동산 / 프롭테크 플랫폼', '소셜 플랫폼 / 커뮤니티', '포털 / 기타'], required: true },
     { id: 'requiresAuth', label: '로그인/회원가입 기능 추가 유무', icon: <Key size={18} className="text-indigo-400" />, type: 'radio', options: ['O', 'X'], required: true },
     { id: 'designLanguage', label: '디자인 언어', icon: <Languages size={18} className="text-indigo-400" />, type: 'select', options: ['한국어', '영어', '일본어', '중국어', '스페인어', '프랑스어', '독일어', '기타'], required: true },
-    { id: 'purpose', label: '웹사이트 목적', icon: <Layout size={18} className="text-indigo-400" />, placeholder: '예: 개인 포트폴리오 전시 및 프리랜서 문의 접수', required: true },
+    { id: 'purpose', label: '웹사이트 목적', icon: <Layout size={18} className="text-indigo-400" />, type: 'textarea', placeholder: '예: 개인 포트폴리오 전시 및 프리랜서 문의 접수', required: true },
     { id: 'coreValue', label: '핵심 가치 및 차별점', icon: <Sparkles size={18} className="text-indigo-400" />, placeholder: '예: 10배 빠른 처리, 혁신적인 UI/UX' },
     { id: 'businessModel', label: '서비스 형태 / 수익 모델', icon: <Users size={18} className="text-indigo-400" />, placeholder: '예: B2B SaaS 구독형, 무료 커뮤니티' },
     { id: 'references', label: '참고 사이트 / 벤치마킹', icon: <ArrowRight size={18} className="text-indigo-400" />, placeholder: '예: Apple처럼 깔끔한 레이아웃' },
@@ -1262,6 +1271,16 @@ ${formData.images.length > 0 ? '\n[시각적 참고 자료]\n사용자가 이미
                             );
                           })}
                         </div>
+                      ) : field.type === 'textarea' ? (
+                        <textarea
+                          id={field.id}
+                          name={field.id}
+                          value={formData[field.id as keyof typeof formData] as string}
+                          onChange={handleInputChange}
+                          placeholder={field.placeholder}
+                          rows={4}
+                          className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white placeholder:text-zinc-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all text-sm font-medium resize-y min-h-[100px]"
+                        />
                       ) : (
                         <input
                           type="text"
