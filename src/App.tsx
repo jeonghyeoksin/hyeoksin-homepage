@@ -9,6 +9,489 @@ import { Key, CheckCircle, AlertCircle, Sparkles, Copy, ArrowRight, Code, Layout
 import { GoogleGenAI } from '@google/genai';
 import ReactMarkdown from 'react-markdown';
 
+const PRESET_EXAMPLES = [
+  {
+    id: 1,
+    title: '메종 드 카카오 ☕',
+    description: '프렌치 프리미엄 베이커리 카페 다중 페이지',
+    projectName: '메종 드 카카오',
+    websiteType: '기업 및 서비스 다중 페이지',
+    requiresAuth: 'X',
+    designLanguage: '한국어',
+    purpose: '프리미엄 프랑스식 베이커리 카페의 오프라인 매장 및 시그니처 빵/디저트 라인업 홍보',
+    coreValue: '천연 발효종을 사용한 48시간 저온숙성 전통 바게트와 정통 크루아상의 깊은 풍미',
+    businessModel: '매장 정보 제공 및 단체 주문 예약 문의를 접수하는 인바운드 마케팅',
+    targetAudience: '2030 여성 및 감성 카페와 맛있는 디저트를 즐겨 찾는 트렌디한 식음료 관심층',
+    brandVoice: '프렌치 시크, 고풍스럽고 우아하며 따뜻함이 묻어나는 프리미엄 톤앤매너',
+    features: '시그니처 디저트 라이브 갤러리, 단체 예약 연동 문의 폼, 매장 위치 상세 지도 안내 및 교통정보',
+    cta: '대표 메뉴 확인하기, 단체 주문 상담 신청',
+    style: '고풍스러운 다크 브라운, 크림 아이보리, 골드 포인트 컬러를 활용한 감성 레이아웃',
+    pages: '홈(Home), 브랜드 소개(About), 대표 메뉴(Menu), 매장 안내 & 예약(Location & Booking)',
+    colors: '크림 아이보리, 토스트 베이지, 다크 카카오 브라운, 골드 포인트',
+    keyAssets: '고해상도 바게트 크루아상 조리 일러스트, 프랑스식 인테리어 무드 배경 사진',
+    animations: '메뉴 이미지 마우스 호버 시 부드러운 스케일 업 및 리스트 스태거 순차 노출 효과',
+    dataPersistence: '예약 문의 접수 데이터를 로컬 메모리 및 가상 접수 확인 보드에 연동',
+    libraries: 'Tailwind CSS, motion (애니메이션), lucide-react (아이콘)',
+    additional: '오프라인 카페의 따뜻함이 웹에서도 느껴지도록 은은하며 감미로운 배경 색감 적용 필요'
+  },
+  {
+    id: 2,
+    title: '아트 시그니처 🎨',
+    description: 'UX/UI 디자인 개인 포트폴리오 사이트',
+    projectName: '아트 시그니처',
+    websiteType: '포트폴리오 사이트',
+    requiresAuth: 'X',
+    designLanguage: '한국어',
+    purpose: 'UX/UI 디자이너로서의 상세 커리어 이력, 프로젝트 프로젝트 성과 전시 및 협업 문의 접수',
+    coreValue: '사용자 관점의 유용성과 시각적 탁월함을 결합하여 비즈니스 가치를 극대화하는 UI/UX 디자인',
+    businessModel: '채용 담당자 제안 수신 및 외주 개발 디자인 외주 문의 확보',
+    targetAudience: '새로운 모바일 앱/웹 서비스를 기획 중인 스타트업 대표 및 IT 플랫폼 회사 채용 담당 리더',
+    brandVoice: '전문성, 혁신적이며 가벼운 군더더기가 없고 신뢰할 수 있는 테크니컬 크리에이터 톤앤매너',
+    features: '프로젝트 카드 그리드뷰(클릭 시 상세 모달 오픈), 실시간 경력 연대표 타임라인, 간편 이메일 연동 문의 폼',
+    cta: '포트폴리오 다운로드, 디자인 의뢰하기',
+    style: '여유 있는 그리드 여백, 다크 모드 베이스의 미니멀 세련된 무드 레이아웃',
+    pages: '메인 포트폴리오 홈(Portfolio Home), 상세 경력 이력(About), 디자인 의뢰 & 연락처(Contact)',
+    colors: '딥 블랙, 오프화이트, 하이라이트 일렉트릭 블루',
+    keyAssets: '목업 그래픽 이미지, 전문 작가 느낌의 프로필 인물 사진',
+    animations: '스크롤 시 상단 헤더 블러 글래스모피즘 트랜지션, 포트폴리오 호버 확대 효과',
+    dataPersistence: '문의 접수 시 브라우저 내 확인 얼럿 알림',
+    libraries: 'Tailwind CSS, motion (애니메이션), lucide-react (아이콘)',
+    additional: '자기 주도적 이력서 다운로드 컴포넌트 탑재'
+  },
+  {
+    id: 3,
+    title: '태스크허브 ⚡',
+    description: '스타트업 전용 협업 칸반보드 및 태스크 매니저 SaaS',
+    projectName: '태스크허브',
+    websiteType: 'B2B/B2C SaaS 플랫폼',
+    requiresAuth: 'O',
+    designLanguage: '한국어',
+    purpose: '프로젝트 기획부터 개발, 디자인 출시까지 부서 간 실시간 칸반 카드로 협업 효율화',
+    coreValue: '학습 비용 제로! 가장 직관적으로 업무 카드를 드래그 앤 드롭하며 소통하는 린(Lean) 협업 툴',
+    businessModel: '월 멤버십 형태의 사내 계정 연동 구독형 SaaS 모델 시뮬레이터',
+    targetAudience: '속도감 있는 실시간 협업과 직관적인 업무 우선순위 시각화가 필요한 국내 소규모 스타트업 팀',
+    brandVoice: '활력 넘치고 신속하며, 협업의 즐거움을 살리는 영하고 테크니컬한 톤',
+    features: '드래그 앤 드롭 지원 칸반보드(To-do, In-Progress, Done), 마감일 캘린더 전용 뷰, 실시간 팀 멤버 참여 상태칩',
+    cta: '무료로 시작하기, 프리미엄 요금제 혜택',
+    style: '메디컬 클린 화이트 배경 위에 선명한 선과 그림자로 영역을 직관적으로 보여주는 노션풍 레이아웃',
+    pages: '소개 랜딩페이지, 나의 가상 태스크 대시보드 및 실시간 협업 카드 대형 보드',
+    colors: '퓨어 슬레이트, 세련된 아쿠아 블루, 에메랄드 그린',
+    keyAssets: '협업 워크스페이스 가상 일러스트 디자인, 깔끔한 사스 서비스 모형 비주얼',
+    animations: '카드를 드롭하여 리스트 이동 시 적용되는 통통 튀는 바운스 모션 효과',
+    dataPersistence: '로컬스토리지 연동을 통한 브라우저 종료 후에도 작성 카드 그대로 반영',
+    libraries: 'Tailwind CSS, motion, lucide-react, HTML5 Drag API',
+    additional: '테스크 카드에 우선순위 라벨(High, Medium, Low) 지정 기능 명시'
+  },
+  {
+    id: 4,
+    title: '세일즈메이트 📈',
+    description: '소상공인용 고객 데이터 CRM 대시보드',
+    projectName: '세일즈메이트',
+    websiteType: 'CRM(고객 관계 관리)',
+    requiresAuth: 'O',
+    designLanguage: '한국어',
+    purpose: '고객 정보 등록, 결제 이력, 최근 상담 내역 메모 및 미팅 스케줄 일정을 한눈에 모니터링',
+    coreValue: '어려운 CRM 솔루션 대신, 복잡도를 줄여 필요한 고객 정보만 신속히 검색하고 조회 가능',
+    businessModel: '고객 데이터 100건 무료 등록 후 무제한 추가 사용 라이선스 결제 모델',
+    targetAudience: '액셀 시트나 수기 장부로 고객 관리를 해와 누락 및 누수가 자주 많던 자영업자 및 영업 어드바이저',
+    brandVoice: '체계적이고 견고함, 데이터가 잘 보이며 안심하고 사용할 수 있는 금융 관리 애플리케이션 느낌',
+    features: '성명/연락처 등록 데이터 인물 리스트, 실시간 고객 상세 상담 이력 로그, 매출 통계 차트 그래픽 컴포넌트',
+    cta: '신규 고객 등록, 고객 데이터 통계 분석',
+    style: '밀도 높은 정보 위젯 배치, 고대비 테이블, 깔끔한 통계 그래픽의 정보 중심 디자인',
+    pages: 'CRM 대시보드 홈, 실시간 고객 관계 장부, 결제 데이터 내역',
+    colors: '스포트 에메랄드 그린, 딥 플래티넘, 화이트',
+    keyAssets: '대시보드 통계 카드 아이콘, 깔끔한 그리드 차트 형상',
+    animations: '메뉴 전환 시 페이지가 스으윽 슬라이드되며 로드되는 오프셋 애니메이션',
+    dataPersistence: 'localStorage를 활용한 세일즈 데이터 영구 저장 엔진',
+    libraries: 'Tailwind CSS, motion, lucide-react, recharts (통계 차트 시각화)',
+    additional: '테이블 행 클릭 시 해당 고객 카드가 우측 미니 패널에 뜨는 실용 구조 명시'
+  },
+  {
+    id: 5,
+    title: '책방구석 📚',
+    description: '온오프라인 독서 모임 및 북클럽 커뮤니티',
+    projectName: '책방구석',
+    websiteType: '소셜 플랫폼 / 커뮤니티',
+    requiresAuth: 'O',
+    designLanguage: '한국어',
+    purpose: '책 매니아들이 한 달에 한 번 함께 읽을 파트너를 지정하고 토론, 독후감 에세이를 보드에 투고',
+    coreValue: '자유롭고 심도가 깊은 질문을 서로 던지며, 글쓰기를 통해 나의 일상 습관을 돌아보는 공간',
+    businessModel: '매주 주말 오프라인 독서 모임 공간 대여 및 도서 특별 패키지 배송 구독 티켓 판매',
+    targetAudience: '독서 편식에서 벗어나 철학, 경제학, 에세이 등 다양한 사람들의 가치관을 공유하고 싶은 이들',
+    brandVoice: '따뜻한 인센스 향이 나는 듯한 차분하고 감수성 어린 우드 북앤 가드닝 아늑한 스타일',
+    features: '이달의 도서 투표 피드, 실시간 도서별 한줄 평 투고 보드, 북클럽 참여 예약 캘린더 컴포넌트',
+    cta: '이달의 클럽 참여하기, 독서 솔직 고백 투고',
+    style: '톤다운된 마일드 샌드 베이지, 포근한 카키 올리브 그린을 활용한 정적이며 세련된 슬로우 매거진 뷰',
+    pages: '책방구석 소개 홈, 활발한 모임 게시판, 책장 보관소',
+    colors: '올리브 딥그린, 매트 샌드 베이지, 다크 테라코타',
+    keyAssets: '감성적인 라인 일러스트 위주의 책 삽화 이미지',
+    animations: '책을 책장에 넣는 듯한 부드러운 스태거링 스무스 드롭 다운 트랜지션',
+    dataPersistence: '독후감 작성 및 투표 데이터를 가상 로컬 스토리지에 캐싱 유지',
+    libraries: 'Tailwind CSS, motion, lucide-react',
+    additional: '책 추천 시 별점 조절 레이팅 바 포함'
+  },
+  {
+    id: 6,
+    title: '싱크업 빌리지 🏢',
+    description: '중소기업 전자결재 및 공지 인트라넷 그룹웨어',
+    projectName: '싱크업 빌리지',
+    websiteType: '사내 인트라넷 / 그룹웨어',
+    requiresAuth: 'O',
+    designLanguage: '한국어',
+    purpose: '사내 공지사 전파, 주간 부서 일정 공유 및 복잡한 결재 업무를 대폭 통합하는 사내 허브 사이트',
+    coreValue: '번거로운 휴가 신청서, 품의 지출 보고를 원클릭 전자서명 및 버튼 한 번으로 결재 기안 승인',
+    businessModel: '사내 전용 단독 호스팅 솔루션 및 서버 인프라 유지보수 서비스',
+    targetAudience: '종이 결제판 대신 투명하고 합리적으로 업무 프로세스를 연계하고자 하는 중소/스타트업 임직원',
+    brandVoice: '공명정대하며 간결하고, 정돈되어 가독성이 매우 뛰어난 비즈니스 포털',
+    features: '전자결재 상신 양식 선택(품의서/휴가신청서) 및 실시간 승인 단계 타임라인, 주간 공유 스케줄 캘린더',
+    cta: '새 결재 문서 기안하기, 전체 부서 조직원 확인',
+    style: '화이트와 슬레이트 그레이 기반의 깔끔한 그리드 보드 구조, 시각적 중요도 위주의 타이포그래피',
+    pages: '게시판 홈, 전자결재함, 사내 조직도 주간 일정표',
+    colors: '스페이스 네이비, 쿨 그레이, 세련된 하이테크 화이트',
+    keyAssets: '결재 스탬프 아이콘, 부서 업무 매뉴얼 가이드 다운로드 링크',
+    animations: '결재안 올릴 시 축하 체크 모션과 함께 완료 리스트 슬라이드 피드백',
+    dataPersistence: '로컬 저장을 연동한 가상 결재 수신함 실시간 리프레시 반영',
+    libraries: 'Tailwind CSS, motion, lucide-react',
+    additional: '사원 상세 프로필 연락처 빠른 검색 카드 구현'
+  },
+  {
+    id: 7,
+    title: '바디튠 PT 매치 🏋️',
+    description: '퍼스널 트레이너 실시간 매칭 및 예약 캘린더 플랫폼',
+    projectName: '바디튠',
+    websiteType: '예약 및 매칭 플랫폼',
+    requiresAuth: 'O',
+    designLanguage: '한국어',
+    purpose: '강사진 프로필, 이전 수강생들의 리얼 후기, 빈 수업 시간대 조회를 통하여 원클릭 PT 매칭 연계',
+    coreValue: '헬스장 카운터에 매번 문의 전화를 할 필요 없이 원할 때 바로 자유롭게 세션 클래스 예약 신청',
+    businessModel: '선불 티켓 결제 시 강사와 수수료를 쉐어링하는 간편 예약 커머셜 플랫폼',
+    targetAudience: '필라테스, 홈트, 크로스핏 등 자신과 케미가 맞는 검증된 트레이너를 직접 선별하려는 헬스 챌린저',
+    brandVoice: '파워풀하며 동기부여가 크게 되는, 다이내믹하면서도 정교한 스포트 테크 톤앤매너',
+    features: '검증된 트레이너 카드 검색 및 평점 필터링, 실시간 수업 일자 시간대 선택 그리드, 전후 비교 갤러리 슬라이더',
+    cta: '나만의 트레이너 매치받기, 주간 세션 일정 예약',
+    style: '블랙 오닉스 배경 위에 에너지 넘치는 강렬한 오렌지/옐로우 포인트를 준 하이 콘트라스트 스타일',
+    pages: '메인 매칭 홈(Match Home), 상세 트레이너 리스트, 나의 예약 타임테이블',
+    colors: '에너제릭 네온 오렌지, 리얼 카본 블랙, 슬레이트',
+    keyAssets: '트래이어 운동 프로필 고화질 스틸 컷, 근육 매핑 전문 가이드라인 컴포넌트',
+    animations: '예약 일시 선택 시 일렉트릭 웨이브 리플 파동 터치 피드백 모션',
+    dataPersistence: 'PT 예약 완료된 데이터를 로컬 스토리지 누적 카운트에 반영',
+    libraries: 'Tailwind CSS, motion, lucide-react',
+    additional: '트레이너 프로필 클릭 시 상세 소셜 미디어 배지 아이콘 노출 지시'
+  },
+  {
+    id: 8,
+    title: '코드마스터 스쿨 💻',
+    description: '실용 동영상 코딩 스마트 교육 LMS 플랫폼',
+    projectName: '코드마스터',
+    websiteType: 'LMS (학습 관리 시스템)',
+    requiresAuth: 'O',
+    designLanguage: '한국어',
+    purpose: '강좌 로드맵 제공, 코너별 진척도를 즉각 확인하고 비디오 재생, 질문하기를 통해 학습 격차 해소',
+    coreValue: '눈으로만 보는 인강을 넘어, 학습 현황 진도바를 통해 나의 완강 성취를 끝까지 완주 유도',
+    businessModel: '강좌당 평생 소장 라이프타임 패스 판매 또는 매주 업데이트되는 연도별 프리패스 멤버십',
+    targetAudience: '코딩 학습을 독학으로 시작했으나 도중에 자주 잦게 주저앉던 코린이 직장인 및 취준생들',
+    brandVoice: '사이버틱하며 호기심을 유발하는 코딩 테크 클래스 무드, 개발 영감이 솟구치는 톤앤매너',
+    features: '진도율 마커 및 코스 시퀀스 리스트, 질문 답변(Q&A) 실시간 피드 투고, 완수 시 획득 기프트 배지 가상 팝업',
+    cta: '강좌 무료 맛보기, 나만의 커리큘럼 추천 시작',
+    style: '인텔리제이/VS Code 테마가 연상되는 테크니컬하고 눈이 편안한 인디고 퍼플 딥컬러 스킨',
+    pages: '강좌 커스텀 홈, 상세 학습 공간(LMS), 강사 피드백 및 나의 리포트',
+    colors: '일렉트릭 바이올렛, 딥 인디고 블루, 민트 코드',
+    keyAssets: '개발자 장비 목업 일러스트, 강좌 코스 썸네일 목업 이미지',
+    animations: '과목 코스를 완강 체크할 때 꽃가루 파티클(Confetti)이 샤르르 퍼지는 모션',
+    dataPersistence: '로컬 스토리지를 이용해 강의 진행도 실시간 저장 및 원클릭 복원',
+    libraries: 'Tailwind CSS, motion, lucide-react, canvas-confetti (가상)',
+    additional: '코드 작성용 다크 테마 에디터 와이어프레임 박스 UI 장착'
+  },
+  {
+    id: 9,
+    title: '홈 파인더 전월세 분석 🏠',
+    description: '실거래 빅데이터 기반 주택 매물 찾기 및 시세 대시보드',
+    projectName: '홈 파인더',
+    websiteType: '부동산 / 프롭테크 플랫폼',
+    requiresAuth: 'X',
+    designLanguage: '한국어',
+    purpose: '특정 역세권 주거 매물 리스트업 제공 및 시세 거래 변동액을 그래프를 통해 투명하게 직관적 표시',
+    coreValue: '허위 매물에 피곤하지 않도록 직접 필터를 이용해 실거래가 전월세 시세 변동을 d3기반 정밀 예측',
+    businessModel: '공인중개사 프리미엄 노출 광고 료 및 상세 세무/금융 대출 계산기 맞춤 수수료',
+    targetAudience: '내 집 마련 및 첫 이사를 앞두고 실질 거래 단가를 면밀하게 비교하여 이득을 챙기려는 똑똑한 스마트 정보족',
+    brandVoice: '신뢰의 최고봉인 일렉트릭 블루 색상을 기조로 정직하고 투명하면서 수치를 시각화하는 객관적 톤',
+    features: '금액 범위를 정하는 인터랙티브 필터 및 슬라이더 디렉터리, 가구원수별 추천, 부동산 실거래 히스토리 변동 그래프',
+    cta: '추천 매물 상담 신청, 내 맞춤 시세 분석기 돌리기',
+    style: '대비 높고 넓은 뷰포트 영역 사용, 스포트 맵 레이아웃(가상)과 리스트 스플릿이 통합된 부동산 허브 디자인',
+    pages: '시세 검색 렌딩홈, 매물 탐색 리포팅, 상세 분석 차트',
+    colors: '로열 블루 Blue, 오프 화이트 Platinum, 애쉬 그레이',
+    keyAssets: '아파트 단지 비주얼 그래픽 렌더링, 깔끔한 건물 아이콘 세트',
+    animations: '필터 슬라이더 조절 시 리스트 카드가 실시간으로 페이드인 아웃되며 교체되는 인터랙션',
+    dataPersistence: '관심 매물 하트 찜(Like) 버튼 누를 시 세션 장바구니에 완벽 유지',
+    libraries: 'Tailwind CSS, motion, lucide-react, recharts (시세 변동 차트 시각화)',
+    additional: '원클릭 담보대출 한도조회(가상) 계산기 세션 장착 지시'
+  },
+  {
+    id: 10,
+    title: '룸 인 로브 감성 커머스 🛏️',
+    description: '감성 핸드메이드 라이빙 편집숍 및 쇼핑몰',
+    projectName: '룸 인 로브',
+    websiteType: '쇼핑몰 / 이커머스',
+    requiresAuth: 'O',
+    designLanguage: '한국어',
+    purpose: '차분하고 안락한 나만의 내추럴 홈 인테리어를 위한 프리미엄 리빙 제품 컬렉션 및 즉시 주문 결제 접수',
+    coreValue: '대량 생산 속 일회성 공산품 대신, 장인의 정성스러운 손길로 빚어낸 따뜻한 슬로우 감성 리빙 제안',
+    businessModel: '매주 독점 리미티드 수량 디자이너 콜라보 수공예품 선착순 판매 커머스',
+    targetAudience: '집이라는 지친 물리적 공간을 마인드풀니스 치유 공간으로 포근하게 브랜딩하고 싶어하는 직장인 및 신혼부부',
+    brandVoice: '은은한 새벽녘 숲속 안개가 떠오르는 마일드 내추럴 샌드 시크, 따뜻함, 감성 잡지 레이아웃',
+    features: '세련된 감성 상품 컬렉션 정렬 그리드뷰, 실시간 장바구니 수량 관리, 원클릭 무통장입금 연동 주문 가상 모의 테스트',
+    cta: '스페셜 웰컴 쿠폰 받기, 이달의 컬렉션 즉시 구매',
+    style: '테크니컬 디자인을 완전히 배제하고 따사로운 샌드스톤 카멜, 테라코타 오렌지 등 온기가 넘쳐나는 따스한 슬로우 숍 매거진',
+    pages: '커머스 매거진 빌리지, 상품 카탈로그, 장바구니 결제 시뮬레이션',
+    colors: '샌드 카멜 Camel, 테라코타 오렌지 Terracotta, 어스 네이처',
+    keyAssets: '자연 채광 속 도자기 식기 썸네일, 감성 리조트 내부 패브릭 사진',
+    animations: '장바구니 이동 버튼 누르거나 찜 누를 때 아이콘이 상체 바운싱 팝업 반응 효과',
+    dataPersistence: '장바구니에 담아둔 품목 및 개수 로컬 영구저장 완벽 캐싱',
+    libraries: 'Tailwind CSS, motion, lucide-react',
+    additional: '리액트 컨텍스트 기반 임시 카운트 연동'
+  },
+  {
+    id: 11,
+    title: '해빗 빌더 플래너 📅',
+    description: '일일 습관 형성 및 스트릭 카운터 플래너',
+    projectName: '해빗 빌더',
+    websiteType: '생산성 앱 / 툴',
+    requiresAuth: 'O',
+    designLanguage: '한국어',
+    purpose: '매일 반복되는 일상 습관(운동, 코딩 공부, 독서 등)을 기록하고, 캘린더 스트릭으로 지속성을 관리',
+    coreValue: '시야각이 넓은 그리드 디자인을 통해 스스로의 도전을 가시적으로 확인하고 성취감 극대화',
+    businessModel: '가상 멤버십 등급 기능 및 주간 성과 요약 보고서 이메일 발행 기능 데모',
+    targetAudience: '새해 목표나 건강하고 생산적인 라이프스타일을 지속가능하게 추구하려는 자기개발 학습자',
+    brandVoice: '긍정적이며 성실하고, 성장을 적극 응원하는 경쾌하면서 힘찬 스포츠 스포티브 세련미',
+    features: '실시간 오늘의 해빗 카테고리 체크, 달성률 도넛차트, 월간 스트릭 캘린더, 성장에 따른 경험치(XP) 바',
+    cta: '오늘의 습관 등록하기, 월간 성적표 인쇄하기',
+    style: '은은한 연회색 배경, 심플하고 얇은 보더 라인, 에너제릭한 오렌지와 그린 하이라이트로 구성된 생산성 특화 대형 보드',
+    pages: '대시보드 메인, 습관 라이브러리 목록, 나의 업적 및 통계 분석',
+    colors: '퓨어 화이트, 엑티브 민트 그린, 선명한 오렌지, 딥 슬레이트',
+    keyAssets: '목표 달성을 형상화하는 수려한 격자 픽셀 그래픽 세트',
+    animations: '체크박스 클릭 완료 처리 시 초록색 불빛이 은은하게 퍼지며 피로가 풀리는 글로우 트랜지션 효과',
+    dataPersistence: 'localStorage 연동으로 접속 상태 및 데일리 스트릭 횟수 정보 완벽 캐싱 유지',
+    libraries: 'Tailwind CSS, motion, lucide-react',
+    additional: '체크 취소 시에도 안전하게 이전 데이터가 복원되도록 설계'
+  },
+  {
+    id: 12,
+    title: '핏파트너 스마트 홈트 🏃',
+    description: '초보자용 체계적인 운동 예약 및 전문 루틴 비디오 스트리밍',
+    projectName: '핏파트너',
+    websiteType: '강의 플랫폼',
+    requiresAuth: 'O',
+    designLanguage: '한국어',
+    purpose: '집에서 편안하게 최고의 개인 트레이닝(PT) 및 필라테스 강의 고해상도 영상을 보며 일정을 트래킹',
+    coreValue: '일반 인강과 달리 타임라인별 주요 주의 동작(자세 팁)을 실시간 위젯으로 쉽게 확인',
+    businessModel: '베이직 프리패스 요금 및 특정 스타 트레이너 1:1 맞춤 피드백 패키지 티켓 시뮬레이션',
+    targetAudience: '헬스장에 갈 시간적 여유가 없거나 프라이빗하게 홈트 전문 루틴을 정교하게 다지려는 홈 트레이너',
+    brandVoice: '활기차고 힙하며 스포티한 네온 그린 컬러 매치로 언제나 기분 전환이 되는 역동적 톤',
+    features: '선택 부위별(상체/하체/유산소) 강좌 목록, 현재 재생 동영상 타임박스, 트레이너 실시간 질문 코너',
+    cta: '무료 맛보기 세션 재생, VIP 멤버십 플랜 탐색',
+    style: '고기능성 피트니스 브랜드 웹처럼 세련되고 고대비 테마의 인터랙티브 플레이어 위주 화면 배치',
+    pages: '클래스 홈, 수강 중인 강좌 재생 룸, 마이 워크아웃 성과 피드',
+    colors: '딥 메탈 블랙, 하이라이트 일렉트릭 라임 네온, 화이트',
+    keyAssets: '운동 자세 가이드 벡터 로고, 깔끔한 스태츠 카드 아이콘',
+    animations: '재생 버튼 클릭 시 미끄러지듯 스무스하게 커지는 플레이어 전체 스크린 모션',
+    dataPersistence: 'localStorage를 활용한 영상 일자별 진도 체크율 데이터 영구 보관',
+    libraries: 'Tailwind CSS, motion, lucide-react',
+    additional: '비디오 플레이 스탑 제어 상태 칩 연동 명시'
+  },
+  {
+    id: 13,
+    title: '공간의 가치 🏢',
+    description: '소호 사무실, 파티룸, 연습실 통합 예약 및 정보 제공 플랫폼',
+    projectName: '공간의 가치',
+    websiteType: '예약 및 매칭 플랫폼',
+    requiresAuth: 'X',
+    designLanguage: '한국어',
+    purpose: '회의실, 파티룸, 댄스/음악 연습실 등 원하는 역세권의 대관 장소를 쉽고 편리하게 실시간 예약',
+    coreValue: '위치, 시간당 단가, 이용 정원 및 필수 부대시설(와이파이, 빔프로젝터 등)을 완벽 매칭 검증',
+    businessModel: '공간 호스트 등록 및 예약 완료당 파격적인 가상 수수료 할인 우대 예약 결제 모델',
+    targetAudience: '회의 공간이 필요한 비즈니스 미팅 주최자, 촬영 스튜디오를 찾는 크리에이터, 파티를 계획하는 소모임 그룹',
+    brandVoice: '세련되고 감각적이며 정돈된 느낌의 모던 아키텍처 인테리어 무드 톤앤매너',
+    features: '조건별(인원, 가격대) 공간 고속 필터링 카드뷰, 상세 날짜-시간대 조율 및 가상 캘린더 오더, 실거래 영수증 시뮬레이터',
+    cta: '지금 할인된 공간 찾기, 신규 공간 등록 문의',
+    style: '깔끔한 무채색 그리드와 미니멀한 모던 폰트, 여유로운 마진의 스튜디오형 고급스러운 인테리어 슬라이더',
+    pages: '대관 플레이스 홈, 매장별 상세 디테일 뷰(위치 및 정원), 나의 가상 예약 목록',
+    colors: '쿨 플래티넘 화이트, 딥 애쉬 그레이, 에메랄드 퍼플 포인트',
+    keyAssets: '고해상도 실내 공간 그래픽, 감각적인 공간 도면 일러스트',
+    animations: '시간대 버튼 토글 시 통통 튀며 선택 상태로 활성화되는 바운싱 체크 모션',
+    dataPersistence: '예약 내역 리스트 데이터를 브라우저 내에 누적시켜 원클릭 확인 가능',
+    libraries: 'Tailwind CSS, motion, lucide-react',
+    additional: '예약 일시 선택 시 실시간 자동 요금 계산 시스템 지침 추가'
+  },
+  {
+    id: 14,
+    title: '인사이트 데크 📰',
+    description: '마이크로 테크 및 비즈니스 트렌드 전문 뉴스레터 미디어',
+    projectName: '인사이트 데크',
+    websiteType: '블로그 / 컨텐츠 미디어',
+    requiresAuth: 'X',
+    designLanguage: '한국어',
+    purpose: '글로벌 테크 기업 및 비하인드 비즈니스 트렌드 요약 리포트를 간편 매거진 피드 형태로 무한 열람',
+    coreValue: '하루 5분! 직근 커리어 성장에 필요한 대기업 협업 노하우와 주간 신기술 뉴스를 완벽 핵심 요약 제공',
+    businessModel: '유료 스페셜 아티클 정기 구독 및 유료 광고 스폰서십 프로모션 모듈',
+    targetAudience: '매일 넘치는 인터넷 뉴스 홍수 속에서 고품질 커리어 지식을 핵심만 빠르게 편식 소화하고픈 비즈니스맨',
+    brandVoice: '인쇄 아날로그 뉴스 신문 같은 느낌을 지니면서도 모던하고 지적인 뉴욕 에디토리얼 톤',
+    features: '인기 테그 검색 및 아티클 필터, 이메일 주소 한 줄 간편 구독 신청 폼, 읽은 시간 표시 바 지시기',
+    cta: '매일 아침 인사이트 받아보기, 무료 요약본 읽기',
+    style: '세리프 폰트 디스플레이와 깔끔하게 대비되는 모노 무채색 스킨, 모던한 라인 장식이 일품인 매거진형 지면식 레이아웃',
+    pages: '인사이트 매거진 홈, 아티클 본문 리딩 페이지(구조화 텍스트), 이달의 발행 아카이브 피드',
+    colors: '소프트 아이보리 가벼운 베이지, 깊고 푸른 네이비 슬레이트, 리얼 다크 차콜',
+    keyAssets: '만년필 서명 그래픽, 신문 지면 스타일 테크 썸네일 아트웍',
+    animations: '스크롤 상단에 현재 글 읽기 진행도를 알려주는 가로 진행바(Progress Line) 부드러운 트랙 모션',
+    dataPersistence: '북마크 저장 및 이메일 구독 내역을 로컬 캐시에 즉각 유지',
+    libraries: 'Tailwind CSS, motion, lucide-react',
+    additional: '원활한 가독성을 위한 최적의 행간과 서체 명세 지시'
+  },
+  {
+    id: 15,
+    title: '어반 가든 IoT 🌿',
+    description: '반려식물 집사를 위한 실시간 홈 IoT 상태 대시보드',
+    projectName: '어반 가든',
+    websiteType: '대시보드 / 어드민 페이지',
+    requiresAuth: 'X',
+    designLanguage: '한국어',
+    purpose: '가상 IoT 센서(토양 수분, 온도, 일조량) 정보를 실시간 가독성 높게 모니터링하고 식물 주기 관리 연동',
+    coreValue: '내 소중한 반려식물이 갈증을 느끼거나 빛이 필요할 때 직관적인 수치와 이모지로 물주기 경고 제공',
+    businessModel: '가정용 지능형 자동 물뿌리개 가상 하드웨어 연동 시뮬레이터 라이선스',
+    targetAudience: '바쁜 도심 일상 속 매번 물 주기 타이밍을 놓쳐 식물을 아쉽게 시들게 한 초보 어반 식물 집사들',
+    brandVoice: '네이처 그린과 올리브, 싱그럽고 친근하면서도 기술적으로 잘 정돈된 리빙 테크 무드',
+    features: '화분별 실시간 수분 온도 도넛 그래프 차트 위젯, 수동 원격 물주기 가상 가동 토글 버튼, 식물 성장 일지 카드보드',
+    cta: '내 반려화분 등록하기, 원격 스마트 가동 체험',
+    style: '눈이 부시지 않은 네이처 올리브 그린 계열의 부드럽고 가독성 극대화된 웰컴 대시보드 카드 레이아웃',
+    pages: '텃밭 원격 대시보드 메인, 나의 정원 반려식물 도감, 관리 일지 히스토리',
+    colors: '보태니컬 그린, 부드러운 올리브 베이지, 퓨어 소프트 허브 민트, 라벤더 오프블루',
+    keyAssets: '몬스테라, 유칼립투스 라인 드로잉, 물방울 모션 아이콘',
+    animations: '물주기 버튼을 누르면 화분 카드의 수분 수치 비주얼 그래프가 쑥 상승하며 물결 일렁이는 웨이브 인터랙션',
+    dataPersistence: '수정된 식물 상태값 및 최근 급수 시간 데이터를 localStorage에 연속 저장 연계',
+    libraries: 'Tailwind CSS, motion, lucide-react, recharts (실시간 환경수치 차트)',
+    additional: '식물의 기분 상태를 감지하는 임시 로직 가이드 동봉'
+  },
+  {
+    id: 16,
+    title: '플레이스 매치 ⚽',
+    description: '동호인용 동네 풋살 및 체육 장소 매칭 예약 시스템',
+    projectName: '플레이스 매치',
+    websiteType: '예약 및 매칭 플랫폼',
+    requiresAuth: 'O',
+    designLanguage: '한국어',
+    purpose: '개인 및 팀 연동 경기 일정을 조회하고, 함께 대결할 동네 축구/풋살/테니스 상대편을 클릭 매칭',
+    coreValue: '인원 부족으로 폐강되던 소모임 매치를 방지하고, 실력 및 매너 수준 등급제를 통해 최상의 동네 체육 매칭 성사',
+    businessModel: '경기 구장 대관 패키지 예약 및 게스트 모집 참가비 통합 간편 가상 정산 시뮬레이터',
+    targetAudience: '매번 인원이 부족해 경기를 포기하거나 대관에 지친 동네 활력 스포츠 러버 및 조기동호회 장',
+    brandVoice: '액티브하며 역동적이고, 팀 플레이의 연대감을 강조하는 강렬하고 신선한 스포츠 매칭 톤',
+    features: '금일 긴급 모집 경기 리스트 피드, 전용 매칭 신청 모달 폼, 실시간 유저 매너지수 체크 바 컴포넌트',
+    cta: '게스트 참여 매치 신청, 우리 팀 구장 오픈하기',
+    style: '스타디움 구장의 생동감이 전해지는 다크 아웃라인 그리드, 에너제릭 스포티브 옐로우를 버무린 시그널 매치 스타일',
+    pages: '매칭 피드 찾기 홈, 부서/경기별 상세 구장 목록, 소셜 랭킹 매너보드',
+    colors: '피치 블랙, 경기장 잔디 딥그린, 하이라이트 일렉트릭 네온 옐로우',
+    keyAssets: '축구장/체육관 벡터 도해, 트로피 및 매치 볼 심볼 이미지',
+    animations: '매치 참가 클릭 즉시 매칭 수락 완료가 되며 부드러운 수축-팽창 모션의 승인 알림 팝업',
+    dataPersistence: '로컬 스토리지 연동을 통한 내 게스트 참가 대기 상태값 완벽한 로컬 저장 장착',
+    libraries: 'Tailwind CSS, motion, lucide-react',
+    additional: '종목별 필터(풋살, 신나는 농구, 활기찬 배드민턴) 멀티 조건 검색 명세 포함'
+  },
+  {
+    id: 17,
+    title: '이지 빌드 ERP 📊',
+    description: '실시간 매출 및 거래처 통합 정산 관리 ERP 솔루션',
+    projectName: '이지 빌드 ERP',
+    websiteType: 'ERP (전사적 자원 관리)',
+    requiresAuth: 'O',
+    designLanguage: '한국어',
+    purpose: '복잡하고 비싼 대기업용 ERP 대신, 소형 소매상도 누구나 쉽고 가볍게 매입, 매출, 거래 대금 잔액을 자동 계산 기록',
+    coreValue: '엑셀 복잡한 수식 없이도 거래 내역 한 줄 입력 시 금년 분기 통계 매출이 자동 그래픽 계산 표기',
+    businessModel: '무료 데이터 등록 패키지 및 기업 보고서 PDF 변환 기능이 있는 평생 기한 한정 유료 라이선스',
+    targetAudience: '거래처 영수증 누락으로 매크로 매입 증빙 처리에 애를 먹는 소형 도소매 사업자 및 외근직 가맹 사장님',
+    brandVoice: '안전성 넘치고 전문적인 딥 블루 브랜딩으로, 거래 데이터의 한 치 오차 없음을 보장하는 테크니컬 금융 스킨',
+    features: '실시간 입출금 명세 테이블, 분기 매출 추이 차트, 정산 예정 잔액 자동 집계 카드 3선, 신규 거래처 원클릭 스캔 등록',
+    cta: '신규 거래 등록 개시, 분기 마감 리포트 출력',
+    style: '수치가 한눈에 대조되는 백그라운드 그리드, 높은 채도 대비의 지표 라벨링으로 시인성을 극대화한 인터페이스',
+    pages: 'ERP 실시간 모니터, 매입매출 전용 장부, 거래처 연락 및 연말 정산 아카이브',
+    colors: '코퍼릿 딥 블루, 은은한 스틸 메탈릭, 토마토 레드 경고, 화이트',
+    keyAssets: '회계 장부 전용 컴포넌트 목업, 영수증 바코드 디자인 아이콘',
+    animations: '새 거래 항목 추가 완료 시 리스트 맨 위로 스쳐 내려오며 연한 파란색이 하이라이트되는 페이드 슬라이드 트랜지션',
+    dataPersistence: 'localStorage 데이터 바인딩을 통해 일일 매출 정보의 연속적인 삭제/추가/수정 트래킹',
+    libraries: 'Tailwind CSS, motion, lucide-react, recharts (입출금 그래프)',
+    additional: '외화 환율 변동 칩 시뮬레이터 제공 규칙'
+  },
+  {
+    id: 18,
+    title: '스마트 핏츠 쇼룸 🛍️',
+    description: '취향 기반 맞춤 패션 의류 정기 구독형 온라인 숍',
+    projectName: '스마트 핏츠',
+    websiteType: '쇼핑몰 / 이커머스',
+    requiresAuth: 'O',
+    designLanguage: '한국어',
+    purpose: '매월 나만의 정밀 체형 및 패션 키워드를 설정하면 추천 디자이너의 엄선된 의상이 특별 정기 배송되는 서비스',
+    coreValue: '쇼핑하느라 시간 쓸 필요 없이 내 라이프스타일에 100% 매칭되는 고품격 캡슐 워드로브 의상 코디 전송 완료',
+    businessModel: '매거진식 단품 즉시 구매 및 월정액 기반 자동 스타일 배송 베이직/프리미엄 요금제 플랜',
+    targetAudience: '트렌디한 옷을 입고 싶으나 매번 트렌드 추적이나 옷 고르고 쇼핑몰 다니기가 너무나도 귀찮은 스마트 에디션 직장인',
+    brandVoice: '세련된 프랑스 파리 부티크 잡지 레이아웃, 하이퍼 시티 하이엔드 럭셔리 감성의 미니멀 시크 톤앤매너',
+    features: '간편 스타일 정밀 자가진단 퀴즈 컴포넌트, 3D 가상 의상 옷장 보관함(가상 갤러리), 이달의 코디 투표 카드 리스트',
+    cta: '나만의 무료 스타일링 진단 1분 체크, 이달의 부티크 숍 보기',
+    style: '넓은 텍스트 마진, 고화질 흑백/패션 룩북 기반의 정교한 카달로그 나열, 세련되고 차이 있는 미니멀 디자인',
+    pages: '이달의 룩 매거진 메인, 가상 스타일 자가 진단 룸, 옷장 보관함 & 장바구니 리포팅',
+    colors: '퓨어 크림 베이지, 다크 제트 블랙, 우아한 뮤티드 토프',
+    keyAssets: '모델 자켓 및 패브릭 질감 고해상도 사진, 럭셔리 의장 실사 느낌 일러스트',
+    animations: '체형 단계를 선택하며 넥스트 버튼 누를 때마다 슬라이드가 부드럽게 한 페이지씩 전방 회전하며 교체되는 플립 효과',
+    dataPersistence: '체형 진단 결과 데이터 및 장바구니에 찜한 디자이너 코디 정보 로컬 보존 캐싱',
+    libraries: 'Tailwind CSS, motion, lucide-react',
+    additional: '체형 맞춤 수치를 미터법 인치법 등으로 실시간 변환하는 가상 칩 연동 명시'
+  },
+  {
+    id: 19,
+    title: '웰스 랩 조각 투자 📈',
+    description: '분산형 부동산 & 미술품 소액 조각 투자 시뮬레이터',
+    projectName: '웰스 랩',
+    websiteType: '대시보드 / 어드민 페이지',
+    requiresAuth: 'X',
+    designLanguage: '한국어',
+    purpose: '단돈 만 원으로 빌딩 지분 및 유명 미술품 지분을 쪼개서 분산 소유하고 배당 소이를 시뮬레이션 트래킹',
+    coreValue: '고가 부동산 투자의 장벽을 없애고, 누구나 손짓 한 번으로 자산 배당 변동과 펀딩 진행도를 한눈에 실시간 체감',
+    businessModel: '매달 조기 완판되는 특별 미술 자산 중개 및 가상 운용 연 수수료 수익 시뮬레이터',
+    targetAudience: '예적금 이외에 인플레이션을 방어할 매력적인 조각 투자 및 자산 배분 테크에 목마른 스마트 소액 주주층',
+    brandVoice: '신뢰성과 투명한 금융 보상을 대변하는 다크 에메랄드 컬러 베이스의 견고하고 스포티한 자산 대시보드',
+    features: '진행 중인 이달의 크라우드 펀딩 진행 바, 모의 투자 수익률 d3 예측 계산 그래프, 자산 현황 소유 비율 파이차트 카드',
+    cta: '만원으로 소액 투자 시작하기, 모의 계산기 돌리기',
+    style: '수준 높은 금융 트레이딩 부스 느낌의 가독성 대시보드 구조, 소수점 단위와 배지 수치가 또렷하게 대조되는 디테일 뷰',
+    pages: '조각 자산 공모 탐색, 실시간 자산 현황 판넬, 모의 복리 금융 계산기',
+    colors: '피치 미드나잇 퍼플, 성공의 에메랄드 그린, 플래티넘 메탈, 오프블루',
+    keyAssets: '골드 코인 및 랜드마크 고품질 일러스트, 펀딩 체결 완료 도장 아이콘',
+    animations: '투자하기 버튼 클릭 시 소유 중인 배당 지분이 사르르 카운팅되며 숫자가 올라가는 롤링 카운터 텍스트 모션',
+    dataPersistence: '내가 투자한 공모 매물 지분 내역 데이터를 localStorage에 누계 업데이트 및 리프레시 대응',
+    libraries: 'Tailwind CSS, motion, lucide-react, recharts (지분 분배 및 수익 상승선 그래프)',
+    additional: '가입 환영 가상 투자금 만 원 즉시 충전 프로세스 로직 전송 명시'
+  },
+  {
+    id: 20,
+    title: '커리어 부스터 캠퍼스 💡',
+    description: '주니어 개발자/디자이너 실시간 이력서 리뷰 및 스터디 커뮤니티',
+    projectName: '커리어 부스터',
+    websiteType: '소셜 플랫폼 / 커뮤니티',
+    requiresAuth: 'O',
+    designLanguage: '한국어',
+    purpose: '자신의 이력서 혹은 포트폴리오를 업로드하고 익명의 동종 취준생/현업 멘토에게 실무 피어 리뷰와 조언을 상호 제공',
+    coreValue: '외로운 취업 준비 과정을 함께 이겨내고, 격식 없는 정직한 포트폴리오 첨삭을 통해 서류 합격률을 200% 견인',
+    businessModel: '현업 빅테크 리드 개발자 및 아트 디렉터의 유료 정밀 매치 첨삭 첨부 가상 세션 요금 연동',
+    targetAudience: '첫 포폴을 어설프게 혼자 준비 중이며 자소서 합격 포인트를 명료하게 얻어가지지 못해 갈팡질팡하는 주니어 지망생',
+    brandVoice: '친근감 넘치고 성장을 갈구하는 젊고 트렌디한 인디고 딥오프 컬러 계역, 자유분방하고 긍정적인 캠퍼스 커뮤니티',
+    features: '이력서 마크다운식 상호 투고 피드, 실시간 댓글 토론 영역, 주간 급상승 스터디 부원 서치 컴포넌트, 가상 실시간 합격률 분석 칩',
+    cta: '내 이력서 투고하고 리뷰 받기, 멘토 코멘트 신청',
+    style: '가벼운 소통 카드 뷰, 태그별 분류 칩, 피어 리뷰가 달릴 때마다 상단에 빠르게 흘러가는 실시간 메시지 공보 롤링 보드',
+    pages: '리뷰 소통 피드 광장, 멘토들의 꿀팁 게시판, 나의 포트폴리오 대형 보관소',
+    colors: '인디 블루, 마일드 레몬 파우더 옐로우, 소프트 크림, 다크 퍼플',
+    keyAssets: '커리어 성장 비주얼 마일스톤 벡터 일러스트, 합격 보증 체크 일러스트',
+    animations: '리뷰 투고 시 하늘에서 사뿐하게 내려오는 슬라이드 엔트리 에코, 호버 시 카드 그림자 고대비 상승 모션',
+    dataPersistence: '로컬 스토리지를 바인딩하여 새로 업로드한 내 자소서 및 토론 답변 내역 완전 영구 저장',
+    libraries: 'Tailwind CSS, motion, lucide-react',
+    additional: '우수 피드백에 하트 추천 점수를 누를 시 명사 순위(랭킹 피드)가 즉시 재정렬되는 로직 가이드 동봉'
+  }
+];
+
 export default function App() {
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('gemini_api_key') || process.env.GEMINI_API_KEY || '');
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
@@ -16,6 +499,7 @@ export default function App() {
   const [showCostModal, setShowCostModal] = useState(false);
   const [showGuideModal, setShowGuideModal] = useState(false);
   const [showPatchNotesModal, setShowPatchNotesModal] = useState(false);
+  const [guideTab, setGuideTab] = useState<'beginners' | 'examples'>('beginners');
   const [tempApiKey, setTempApiKey] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [activeDetailTab, setActiveDetailTab] = useState<'branding' | 'design' | 'engineering'>('branding');
@@ -51,6 +535,42 @@ export default function App() {
   const [error, setError] = useState('');
 
   const patchNotes = [
+    { 
+      version: 'v1.16.9', 
+      date: '2026-06-06', 
+      title: '추천 기획 예시 탭 타이틀 문구 간소화', 
+      changes: [
+        '사용방법 가이드 내 추천 기획 예시 탭 버튼의 타이틀을 더 간결하고 직관적으로 변경 (\'추천 기획 예시 10선\'에서 \'추천 기획 예시\'로 조정)'
+      ] 
+    },
+    { 
+      version: 'v1.16.8', 
+      date: '2026-06-06', 
+      title: '범용 추천 예시 20대 블루프린트 대폭 완성', 
+      changes: [
+        '해빗 트래커, 스마트 PT 홈트, 공간 대관 매칭, IoT 식물 대시보드, 유기농 숍, 자산 펀딩, 개발 주니어 커리터스 등 가장 널리 요구되는 실전 도메인 위주의 명인급 기획 템플릿 10선 신규 수립',
+        '원클릭 자동 폼 대입 기능과 완동하여 20가지 테마로 왕초보도 신속 영감을 얻고 일품급 프롬프트를 1초만에 축조할 수 있도록 보강 완료'
+      ] 
+    },
+    { 
+      version: 'v1.16.7', 
+      date: '2026-06-06', 
+      title: '왕초보 가이드 및 10대 추천 활용 예시 시스템 탑재', 
+      changes: [
+        '코딩을 1줄도 모르는 왕초보를 위한 직관적인 4단계 스텝바이스텝 가이드 제공',
+        '카페, 포트폴리오, SaaS, CRM, 북클럽 등 일치율 100% 실전 사용 예시 10선 구축',
+        '원클릭 자동 폼 완성 기능(Quick Apply)으로 초보자도 1초 만에 멋진 기획 수립 가능'
+      ] 
+    },
+    { 
+      version: 'v1.16.6', 
+      date: '2026-06-06', 
+      title: '프롬프트 규칙 및 홈페이지 종류 대폭 확장', 
+      changes: [
+        '단일 앱 생성 시 좌측 상단 로고(프로젝트 이름) 지정 규칙을 프롬프트에 추가',
+        'ERP, LMS, CMS, 사내 인트라넷/그룹웨어 등 더욱 다양한 홈페이지 종류 옵션 추가'
+      ] 
+    },
     { 
       version: 'v1.16.5', 
       date: '2026-06-06', 
@@ -201,6 +721,34 @@ export default function App() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleApplyExample = (example: typeof PRESET_EXAMPLES[0]) => {
+    setFormData({
+      projectName: example.projectName,
+      purpose: example.purpose,
+      websiteType: example.websiteType,
+      requiresAuth: example.requiresAuth,
+      designLanguage: example.designLanguage,
+      coreValue: example.coreValue,
+      businessModel: example.businessModel,
+      references: '',
+      targetAudience: example.targetAudience,
+      brandVoice: example.brandVoice,
+      features: example.features,
+      cta: example.cta,
+      style: example.style,
+      pages: example.pages,
+      colors: example.colors,
+      keyAssets: example.keyAssets,
+      animations: example.animations,
+      dataPersistence: example.dataPersistence,
+      libraries: example.libraries,
+      additional: example.additional || '',
+      images: []
+    });
+    setShowGuideModal(false);
+    alert(`🎉 '${example.projectName}' 기획 양식이 100% 자동 적용되었습니다!\n하단의 '[Build 프롬프트 생성하기]' 버튼만 누르면 바로 완벽한 개발 프롬프트가 제작됩니다!`);
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -365,6 +913,7 @@ ${formData.images.length > 0 ? '\n[시각적 참고 자료]\n사용자가 이미
 2. 마크다운 형식을 사용하여 구조화하세요.
 3. 결과물(웹사이트 전체 레이아웃, 텍스트 콘텐츠, 유저 인터페이스 등)은 반드시 사용자가 선택한 디자인 언어(${formData.designLanguage})로 구현될 수 있도록 정교하게 설계하여 작성하세요. 기술 용어나 설명은 상황공유를 위해 영어를 보조적으로 사용해도 좋습니다.
 4. 결과물이 '매력적인 홈페이지'가 될 수 있도록 트렌디한 디자인 요소를 적극 제안하세요.
+5. 앱이 완성되면 좌측 상단에 반드시 프로젝트 이름(${formData.projectName || '미정'})이 브랜드 로고처럼 표시되도록 개발 지침에 명시하세요.
 `;
 
       const contents = formData.images.length > 0 
@@ -408,7 +957,7 @@ ${formData.images.length > 0 ? '\n[시각적 참고 자료]\n사용자가 이미
 
   const basicFields = [
     { id: 'projectName', label: '프로젝트 이름', icon: <FileText size={18} className="text-indigo-400" />, placeholder: '예: 혁신적인 AI 포트폴리오 사이트', required: true },
-    { id: 'websiteType', label: '홈페이지 종류', icon: <Layout size={18} className="text-indigo-400" />, type: 'select', options: ['랜딩페이지(1 Page)', '기업 및 서비스 다중 페이지', '포트폴리오 사이트', '블로그 / 컨텐츠 미디어', 'B2B/B2C SaaS 플랫폼', '쇼핑몰 / 이커머스', '생산성 앱 / 툴', 'CRM(고객 관계 관리)', '마케팅 플랫폼', '강의 플랫폼', '포털 / 커뮤니티 및 기타'], required: true },
+    { id: 'websiteType', label: '홈페이지 종류', icon: <Layout size={18} className="text-indigo-400" />, type: 'select', options: ['랜딩페이지(1 Page)', '기업 및 서비스 다중 페이지', '포트폴리오 사이트', '블로그 / 컨텐츠 미디어', 'B2B/B2C SaaS 플랫폼', '쇼핑몰 / 이커머스', '생산성 앱 / 툴', 'CRM(고객 관계 관리)', 'ERP (전사적 자원 관리)', 'LMS (학습 관리 시스템)', 'CMS (콘텐츠 관리 시스템)', '대시보드 / 어드민 페이지', '예약 및 매칭 플랫폼', '사내 인트라넷 / 그룹웨어', '마케팅 플랫폼', '강의 플랫폼', '부동산 / 프롭테크 플랫폼', '소셜 플랫폼 / 커뮤니티', '포털 / 기타'], required: true },
     { id: 'requiresAuth', label: '로그인/회원가입 기능 추가 유무', icon: <Key size={18} className="text-indigo-400" />, type: 'radio', options: ['O', 'X'], required: true },
     { id: 'designLanguage', label: '디자인 언어', icon: <Languages size={18} className="text-indigo-400" />, type: 'select', options: ['한국어', '영어', '일본어', '중국어', '스페인어', '프랑스어', '독일어', '기타'], required: true },
     { id: 'purpose', label: '웹사이트 목적', icon: <Layout size={18} className="text-indigo-400" />, placeholder: '예: 개인 포트폴리오 전시 및 프리랜서 문의 접수', required: true },
@@ -1110,76 +1659,198 @@ ${formData.images.length > 0 ? '\n[시각적 참고 자료]\n사용자가 이미
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 w-full max-w-2xl shadow-2xl"
+              className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 w-full max-w-4xl shadow-2xl max-h-[90vh] flex flex-col"
             >
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                  <FileText size={20} className="text-blue-400" />
-                  혁신 홈페이지 개발 AI 사용방법
-                </h3>
-                <button onClick={() => setShowGuideModal(false)} className="text-zinc-400 hover:text-white transition-colors">
+              <div className="flex justify-between items-center mb-6 shrink-0">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-indigo-600/10 rounded-xl text-indigo-400">
+                    <Sparkles size={22} className="animate-pulse" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white leading-tight">
+                      혁신 AI 가이드 & 추천 프로젝트
+                    </h3>
+                    <p className="text-xs text-zinc-400 mt-0.5">왕초보도 10분 만에 전문가 수준의 앱을 빌드하는 꿀팁 장착</p>
+                  </div>
+                </div>
+                <button onClick={() => setShowGuideModal(false)} className="p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-xl transition-all">
                   <X size={20} />
                 </button>
               </div>
-              
-              <div className="space-y-6 max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-4 bg-zinc-950 rounded-2xl border border-zinc-800">
-                    <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold text-sm mb-3">1</div>
-                    <h4 className="text-white font-bold mb-2 text-sm">API Key 입력</h4>
-                    <p className="text-xs text-zinc-400 leading-relaxed">
-                      우측 상단의 <strong>'API Key 필요'</strong> 버튼을 눌러 본인의 Gemini API Key를 입력하세요. 키는 브라우저에만 저장됩니다.
-                    </p>
-                  </div>
-                  
-                  <div className="p-4 bg-zinc-950 rounded-2xl border border-zinc-800">
-                    <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold text-sm mb-3">2</div>
-                    <h4 className="text-white font-bold mb-2 text-sm">기본 정보 입력</h4>
-                    <p className="text-xs text-zinc-400 leading-relaxed">
-                      만들고 싶은 홈페이지의 <strong>이름</strong>과 <strong>목적</strong>을 간단히 입력하세요. (예: 카페 홍보 사이트)
-                    </p>
-                  </div>
-                  
-                  <div className="p-4 bg-zinc-950 rounded-2xl border border-zinc-800">
-                    <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold text-sm mb-3">3</div>
-                    <h4 className="text-white font-bold mb-2 text-sm">원터치 AI 자동 기획</h4>
-                    <p className="text-xs text-zinc-400 leading-relaxed">
-                      <strong>[원터치 AI 자동 기획]</strong> 버튼을 누르면 AI가 타겟 고객, 기능, 디자인 스타일 등을 자동으로 채워줍니다.
-                    </p>
-                  </div>
-                  
-                  <div className="p-4 bg-zinc-950 rounded-2xl border border-zinc-800">
-                    <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold text-sm mb-3">4</div>
-                    <h4 className="text-white font-bold mb-2 text-sm">프롬프트 생성 및 복사</h4>
-                    <p className="text-xs text-zinc-400 leading-relaxed">
-                      하단의 <strong>[Build 프롬프트 생성하기]</strong>를 누른 후, 생성된 결과를 복사하여 구글 AI 스튜디오 Build에 붙여넣으세요.
-                    </p>
-                  </div>
-                </div>
 
-                <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
-                  <h4 className="text-blue-400 font-bold mb-2 text-xs flex items-center gap-2">
-                    <Sparkles size={14} />
-                    꿀팁: 구글 AI 스튜디오 Build란?
-                  </h4>
-                  <p className="text-[11px] text-zinc-400 leading-relaxed">
-                    구글의 최신 AI 기술을 사용하여 자연어 프롬프트만으로 실제 작동하는 웹사이트를 즉석에서 만들어주는 도구입니다. 본 앱은 그 도구에 최적화된 '고해상도 프롬프트'를 만들어 드립니다.
-                  </p>
-                </div>
+              {/* Tab Selector */}
+              <div className="flex border-b border-zinc-800 mb-6 gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setGuideTab('beginners')}
+                  className={`pb-3 px-4 text-sm font-bold transition-all relative ${
+                    guideTab === 'beginners' 
+                      ? 'text-white' 
+                      : 'text-zinc-500 hover:text-zinc-300'
+                  }`}
+                >
+                  ⭐ 왕초보 필독 가이드 (3분 마스터)
+                  {guideTab === 'beginners' && (
+                    <motion.div layoutId="guideActiveTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-500" />
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setGuideTab('examples')}
+                  className={`pb-3 px-4 text-sm font-bold transition-all relative ${
+                    guideTab === 'examples' 
+                      ? 'text-white' 
+                      : 'text-zinc-500 hover:text-zinc-300'
+                  }`}
+                >
+                  🔥 추천 기획 예시 (원클릭 자동 채우기)
+                  {guideTab === 'examples' && (
+                    <motion.div layoutId="guideActiveTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-500" />
+                  )}
+                </button>
+              </div>
+              
+              <div className="space-y-6 overflow-y-auto pr-2 custom-scrollbar flex-1">
+                {guideTab === 'beginners' ? (
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="p-4 bg-zinc-950 rounded-2xl border border-zinc-800/80 hover:border-zinc-700 transition-all">
+                        <div className="w-8 h-8 rounded-full bg-indigo-600/20 text-indigo-400 flex items-center justify-center font-bold text-sm mb-3">1</div>
+                        <h4 className="text-white font-bold mb-2 text-sm flex items-center gap-1.5">
+                          <Key size={14} className="text-indigo-400" />
+                          Gemini API Key 입력 (로컬 자동 저장)
+                        </h4>
+                        <p className="text-xs text-zinc-400 leading-relaxed">
+                          우측 상단의 <strong>'API Key 필요'</strong>를 클릭해 키를 입력해 주세요. 입력한 키는 <strong>본인 PC 브라우저에만 영구 저장</strong>되며, 다른 사람과 절대 공유되지 않아 안심하고 안전하게 영구 사용이 가능합니다.
+                        </p>
+                      </div>
+                      
+                      <div className="p-4 bg-zinc-950 rounded-2xl border border-zinc-800/80 hover:border-zinc-700 transition-all">
+                        <div className="w-8 h-8 rounded-full bg-indigo-600/20 text-indigo-400 flex items-center justify-center font-bold text-sm mb-3">2</div>
+                        <h4 className="text-white font-bold mb-2 text-sm flex items-center gap-1.5">
+                          <FileText size={14} className="text-indigo-400" />
+                          기초 아이디어 2가지만 적기
+                        </h4>
+                        <p className="text-xs text-zinc-400 leading-relaxed">
+                          만들고자 하는 앱의 <strong>'프로젝트 이름'</strong>과 <strong>'웹사이트 목적'</strong>을 한글로 자유롭고 심플하게 기입하세요. (예: '나만의 디저트 홈가드닝 샵', '꽃 배달 및 식물 가이드 제공 사이트')
+                        </p>
+                      </div>
+                      
+                      <div className="p-4 bg-zinc-950 rounded-2xl border border-zinc-800/80 hover:border-zinc-700 transition-all">
+                        <div className="w-8 h-8 rounded-full bg-indigo-600/20 text-indigo-400 flex items-center justify-center font-bold text-sm mb-3">3</div>
+                        <h4 className="text-white font-bold mb-2 text-sm flex items-center gap-1.5">
+                          <Sparkles size={14} className="text-indigo-400" />
+                          원터치 AI 자동 기획 실행
+                        </h4>
+                        <p className="text-xs text-zinc-400 leading-relaxed">
+                          복잡한 설정을 혼자서 고민할 필요가 전혀 없습니다! 필수 정보를 채운 후 <strong>[원터치 AI 자동 기획]</strong>을 한 번만 클릭하면, AI가 타겟 고객, 컬러 테마, 핵심 기능 명세까지 최고의 맞춤형 비즈니스 상세 기획안을 단 3초 만에 설계해 드립니다.
+                        </p>
+                      </div>
+                      
+                      <div className="p-4 bg-zinc-950 rounded-2xl border border-zinc-800/80 hover:border-zinc-700 transition-all">
+                        <div className="w-8 h-8 rounded-full bg-indigo-600/20 text-indigo-400 flex items-center justify-center font-bold text-sm mb-3">4</div>
+                        <h4 className="text-white font-bold mb-2 text-sm flex items-center gap-1.5">
+                          <Zap size={14} className="text-indigo-400" />
+                          프롬프트 복사 & 1초 빌드하기
+                        </h4>
+                        <p className="text-xs text-zinc-400 leading-relaxed">
+                          기획이 완료되면 하단의 <strong>[Build 프롬프트 생성하기]</strong> 버튼을 꾹 누르세요. 생성된 복제 결과 본문을 클립보드에 복사하고, <strong>[구글 AI 스튜디오 Build 바로가기]</strong>를 통해 이동한 뒤 입력창에 고스란히 붙여넣으면 고성능 맞춤형 홈페이지가 리액트 전용으로 완벽 빌드됩니다!
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="p-5 bg-indigo-500/10 border border-indigo-500/20 rounded-2xl space-y-3">
+                      <h4 className="text-white font-bold text-sm flex items-center gap-2">
+                        <Sparkles size={16} className="text-indigo-400" />
+                        💡 구글 AI 스튜디오 Build 활용 3대 꿀팁
+                      </h4>
+                      <ul className="space-y-2.5 text-xs text-zinc-300 list-disc pl-5 leading-relaxed">
+                        <li>
+                          <strong>오류 및 수정도 한글로 간편하게:</strong> 빌드된 홈페이지에 추가하고 싶은 기능이 생겼을 때, "우측 상단에 로그아웃 버튼 하나 추가해줘", "메인 테마 컬러를 청록색으로 바꿔줘"처럼 편하게 한글 채팅으로 지시하면 알아서 코드를 전면 복원 보정해 줍니다.
+                        </li>
+                        <li>
+                          <strong>프로젝트명 로고 규칙 유지:</strong> AI 스튜디오 Build는 한글 브랜드명을 로고 영역에 완벽 표기합니다. 본 플랫폼은 사용자가 설정한 '프로젝트 이름'을 로고 위치에 정밀 매칭하도록 프롬프트를 제어하므로 브랜드의 통일성을 지켜줍니다.
+                        </li>
+                        <li>
+                          <strong>이미지 프롬프트 활용하기:</strong> 만약 참고하고 싶은 손그림 기획 도안이나 영감을 주는 레이아웃 화면 캡쳐본이 있다면, 하단의 <strong>이미지 첨부란</strong>에 업로드해 보세요! AI가 이를 선제 분석하여 디자인 실사 형태를 프롬프트에 입체적으로 추가 탑재합니다.
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="p-4 bg-zinc-950 border border-zinc-800 rounded-xl mb-4 flex items-start gap-3">
+                      <Sparkles size={16} className="text-indigo-400 shrink-0 mt-0.5" />
+                      <p className="text-xs text-zinc-400 leading-relaxed">
+                        아래의 10종 실전 사용 예시는 다양한 홈페이지 종류에 최적화된 모범 기획 포맷입니다. 기획해보고 싶은 주제의 카드를 골라 <strong className="text-white">[이 예시 양식 자동 로드]</strong>를 눌러보세요. 모든 입력 필드가 최적의 기획안으로 1초 만에 자동 완성됩니다!
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {PRESET_EXAMPLES.map((example) => (
+                        <div 
+                          key={example.id} 
+                          className="bg-zinc-950 border border-zinc-800/80 rounded-2xl p-5 hover:border-zinc-700 transition-all flex flex-col justify-between group"
+                        >
+                          <div>
+                            <div className="flex items-start justify-between gap-1 mb-2">
+                              <h4 className="text-white font-bold text-base group-hover:text-indigo-300 transition-colors">
+                                {example.title}
+                              </h4>
+                              <span className="text-[10px] px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-400 shrink-0 font-mono">
+                                Type: {example.websiteType === 'CRM(고객 관계 관리)' ? 'CRM' : example.websiteType.split(' ')[0]}
+                              </span>
+                            </div>
+                            <p className="text-xs text-zinc-300 font-semibold mb-3">
+                              {example.description}
+                            </p>
+                            <div className="space-y-2 text-[11px] text-zinc-400 border-t border-zinc-900 pt-3 mb-5">
+                              <div>
+                                <span className="text-zinc-500 font-bold block mb-0.5">📌 기획 목적</span>
+                                <p className="leading-relaxed line-clamp-2 text-zinc-300">{example.purpose}</p>
+                              </div>
+                              <div className="grid grid-cols-2 gap-2 pt-1">
+                                <div>
+                                  <span className="text-zinc-500 font-bold block mb-0.5">🎨 대표 컬러</span>
+                                  <span className="text-zinc-300">{example.colors.split(',')[0]} 계열</span>
+                                </div>
+                                <div>
+                                  <span className="text-zinc-500 font-bold block mb-0.5">🔒 로그인 여부</span>
+                                  <span className="text-zinc-300">{example.requiresAuth === 'O' ? '필요 (OAuth/Email)' : '불필요 (오프라인)'}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => handleApplyExample(example)}
+                            className="w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-zinc-900 border border-zinc-800 text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white group-hover:border-indigo-500 hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer"
+                          >
+                            <Sparkles size={12} />
+                            <span>이 예시 양식 자동 로드하기</span>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
-              <div className="mt-8 flex justify-end">
+              <div className="mt-8 flex justify-end gap-3 shrink-0 border-t border-zinc-800 pt-5">
                 <button 
+                  type="button"
                   onClick={() => setShowGuideModal(false)}
-                  className="px-6 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-white text-sm font-medium rounded-xl transition-colors"
+                  className="px-6 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-white text-sm font-bold rounded-xl transition-colors cursor-pointer"
                 >
-                  확인했습니다
+                  가이드 닫기
                 </button>
               </div>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
+
 
       {/* API Cost Modal */}
       <AnimatePresence>
