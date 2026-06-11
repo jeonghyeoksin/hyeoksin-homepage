@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Key, CheckCircle, AlertCircle, Sparkles, Copy, ArrowRight, Code, Layout, Palette, Users, FileText, Settings, X, PlusCircle, Database, Package, Zap, Languages, ExternalLink, Eye, EyeOff } from 'lucide-react';
+import { Key, CheckCircle, AlertCircle, Sparkles, Copy, ArrowRight, Code, Layout, Palette, Users, FileText, Settings, X, PlusCircle, Database, Package, Zap, Languages, ExternalLink, Eye, EyeOff, Loader2, Building, User } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
 import ReactMarkdown from 'react-markdown';
 
@@ -506,6 +506,8 @@ export default function App() {
   
   const [formData, setFormData] = useState({
     projectName: '',
+    companyName: '',
+    developerName: '',
     purpose: '',
     websiteType: '랜딩페이지(1 Page)',
     requiresAuth: 'X',
@@ -535,6 +537,34 @@ export default function App() {
   const [error, setError] = useState('');
 
   const patchNotes = [
+    { 
+      version: 'v1.18.2', 
+      date: '2026-06-10', 
+      title: '기초 정보 내 회사명 및 개발자명 구성 필드 신설', 
+      changes: [
+        '기초 정보 영역에 회사명(선택) 및 개발자명(필수) 입력 필드를 새롭게 도입하여 커스텀 요구사항 정보력 강화',
+        '자동 기획 및 빌드용 프롬프트 메인 프레임워크에 입력된 회사명과 개발자 정보를 유기적으로 매칭하여 프롬프트 완성도 및 개인화 최적화 완료'
+      ] 
+    },
+    { 
+      version: 'v1.18.1', 
+      date: '2026-06-10', 
+      title: '홈페이지 종류 항목 AI 추천 단추 개설', 
+      changes: [
+        '홈페이지 종류(websiteType) 선택 필드에도 입력된 기초 정보(프로젝트명, 웹사이트 목적) 기준 자동 홈페이지 종류 분류 기능 추가 완료',
+        '사용자 편의성을 늘리고 20가지 테마 선정 부담을 덜도록 AI 자동 최적 선택 알고리즘 정교화'
+      ] 
+    },
+    { 
+      version: 'v1.18.0', 
+      date: '2026-06-10', 
+      title: '기초 정보 기반 AI 맞춤 추천 기능 및 폼 배치 최적화', 
+      changes: [
+        '프로젝트 이름 바로 다음에 웹사이트 목적을 배치하고 홈페이지 종류는 기초 정보 최하단으로 이동하는 구조 최적화',
+        '핵심 가치 및 차별점, 서비스 형태/수익 모델, 참고 사이트/벤치마킹 입력란에 입력된 웹사이트 목적 정보를 바탕으로 실시간 추천을 제공하는 AI 개별 추천 단추 탑재',
+        '상세 기획 및 개별 추천 로직에 최신 gemini-3.5-flash 모델을 기본 모델로 지정하여 응답성 및 기획력 향상'
+      ] 
+    },
     { 
       version: 'v1.17.0', 
       date: '2026-06-06', 
@@ -735,6 +765,8 @@ export default function App() {
   const handleApplyExample = (example: typeof PRESET_EXAMPLES[0]) => {
     setFormData({
       projectName: example.projectName,
+      companyName: '',
+      developerName: '',
       purpose: example.purpose,
       websiteType: example.websiteType,
       requiresAuth: example.requiresAuth,
@@ -798,8 +830,8 @@ export default function App() {
       setShowApiKeyModal(true);
       return;
     }
-    if (!formData.projectName || !formData.purpose) {
-      setError('프로젝트 이름과 웹사이트 목적을 먼저 입력해주세요.');
+    if (!formData.projectName || !formData.purpose || !formData.developerName) {
+      setError('프로젝트 이름, 개발자명, 웹사이트 목적을 먼저 입력해주세요.');
       return;
     }
 
@@ -811,6 +843,8 @@ export default function App() {
       const prompt = `
         다음 기초 정보를 바탕으로 웹사이트 기획안을 완성해주세요.
         - 프로젝트 이름: ${formData.projectName}
+        - 회사명: ${formData.companyName || '개인/비지정'}
+        - 개발자명: ${formData.developerName}
         - 홈페이지 종류: ${formData.websiteType}
         - 디자인 언어: ${formData.designLanguage}
         - 로그인/회원가입 기능 추가 유무: ${formData.requiresAuth === 'O' ? '필요함 (O)' : '필요하지 않음 (X)'}
@@ -851,7 +885,7 @@ export default function App() {
       `;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+        model: 'gemini-3.5-flash',
         contents: prompt,
         config: { responseMimeType: 'application/json' }
       });
@@ -869,10 +903,94 @@ export default function App() {
     }
   };
 
+  const [recommendingField, setRecommendingField] = useState<string | null>(null);
+
+  const handleRecommendField = async (fieldId: string) => {
+    if (!apiKey) {
+      setError('API Key가 필요합니다. 우측 상단에서 API Key를 입력해주세요.');
+      setShowApiKeyModal(true);
+      return;
+    }
+    if (!formData.projectName || !formData.purpose || !formData.developerName) {
+      setError('프로젝트 이름, 개발자명, 웹사이트 목적을 먼저 입력해주세요.');
+      return;
+    }
+
+    setRecommendingField(fieldId);
+    setError('');
+
+    try {
+      const ai = new GoogleGenAI({ apiKey: apiKey });
+      
+      let systemPrompt = '';
+      if (fieldId === 'websiteType') {
+        systemPrompt = `
+          프로젝트 이름: "${formData.projectName}"
+          웹사이트 목적: "${formData.purpose}"
+
+          위 정보를 토대로 아래 정의된 홈페이지 종류 목록 중에서 이 웹사이트에 가장 적합한 종류를 정확히 딱 1개 골라 그 텍스트 그대로 골라주세요.
+          
+          선택 가능한 후보 목록:
+          ['랜딩페이지(1 Page)', '기업 및 서비스 다중 페이지', '포트폴리오 사이트', '블로그 / 컨텐츠 미디어', 'B2B/B2C SaaS 플랫폼', '쇼핑몰 / 이커머스', '생산성 앱 / 툴', 'CRM(고객 관계 관리)', 'ERP (전사적 자원 관리)', 'LMS (학습 관리 시스템)', 'CMS (콘텐츠 관리 시스템)', '대시보드 / 어드민 페이지', '예약 및 매칭 플랫폼', '사내 인트라넷 / 그룹웨어', '마케팅 플랫폼', '강의 플랫폼', '부동산 / 프롭테크 플랫폼', '소셜 플랫폼 / 커뮤니티', '포털 / 기타']
+
+          질문, 인사말, 마크다운, 대괄호, 따옴표, 백틱 등 추가 텍스트를 절대 출력하지 마십시오. 오직 후보 목록에 있는 글자(예: "쇼핑몰 / 이커머스")와 100% 동일한 이름만 단독 출력하십시오.
+        `;
+      } else if (fieldId === 'coreValue') {
+        systemPrompt = `
+          프로젝트 이름: "${formData.projectName}"
+          웹사이트 목적: "${formData.purpose}"
+
+          위 정보를 토대로 이 웹사이트가 가져갈 수 있는 매력적이고 차별화된 "핵심 가치 및 차별점"을 요약해서 딱 1~2문장의 한글 완성형 텍스트로 추천해주세요. 
+          반드시 사용자가 적은 '웹사이트 목적'에 정교하게 정렬되어야 합니다. (예: "10배 빠른 처리와 사용자 맞춤형 분석으로 일 평균 30분 시간 절약")
+          질문, 인사말, 추가 설명, 마크다운(따옴표, 백틱 등)은 절대 출력하지 말고 오직 한 개의 실전 완성 문어체 추천 텍스트 내용만 직접 출력하십시오.
+        `;
+      } else if (fieldId === 'businessModel') {
+        systemPrompt = `
+          프로젝트 이름: "${formData.projectName}"
+          웹사이트 목적: "${formData.purpose}"
+
+          위 정보를 토대로 이 웹사이트에 가장 적합한 실용적인 "서비스 형태 및 비즈니스/수익 모델"을 1~2문장 내외의 한글 완성형 텍스트로 추천해주세요. 
+          (예: "기본 기능 무료 제공 및 프리미엄 분석 보고서 유료 구독제(Freemium)"처럼 도메인 맞춤 설계)
+          질문, 인사말, 추가 설명, 마크다운(따옴표, 백틱 등)은 절대 출력하지 말고 오직 실전 완성형 추천 텍스트 내용만 직접 출력하십시오.
+        `;
+      } else if (fieldId === 'references') {
+        systemPrompt = `
+          프로젝트 이름: "${formData.projectName}"
+          웹사이트 목적: "${formData.purpose}"
+
+          위 정보를 토대로 이 웹사이트가 벤치마킹 혹은 기획 레퍼런스로 삼기 좋은 유명 실제 서비스 브랜드를 2~3개 추천하고 각각 대표적인 한글 벤치마킹 이유를 짧게 추천해주세요. (예: "Toss처럼 극도로 직관적인 데이터 레이아웃 및 미니멀 UI 벤치마킹")
+          질문, 인사말, 추가 설명, 마크다운(따옴표, 백틱 등)은 절대 출력하지 말고 오직 추천 텍스트 내용만 직접 출력하십시오.
+        `;
+      }
+
+      const response = await ai.models.generateContent({
+        model: 'gemini-3.5-flash',
+        contents: systemPrompt,
+      });
+
+      const recommendation = (response.text || '').trim().replace(/^['"`\s\[\]]+|['"`\s\[\]]+$/g, '');
+      if (recommendation) {
+        setFormData(prev => ({
+          ...prev,
+          [fieldId]: recommendation
+        }));
+      }
+    } catch (err) {
+      console.error(err);
+      setError('AI 추천 중 오류가 발생했습니다. API Key를 확인해 주세요.');
+    } finally {
+      setRecommendingField(null);
+    }
+  };
+
   const generatePrompt = async () => {
     if (!apiKey) {
       setError('API Key가 필요합니다. 우측 상단에서 API Key를 입력해주세요.');
       setShowApiKeyModal(true);
+      return;
+    }
+    if (!formData.projectName || !formData.purpose || !formData.developerName) {
+      setError('프로젝트 이름, 개발자명, 웹사이트 목적을 먼저 입력해주세요.');
       return;
     }
 
@@ -888,6 +1006,8 @@ export default function App() {
 
 [사용자 요구사항]
 - 프로젝트 이름: ${formData.projectName || '미정'}
+- 회사명: ${formData.companyName || '개인/비지정'}
+- 개발자명: ${formData.developerName || '미정'}
 - 홈페이지 종류: ${formData.websiteType || '랜딩페이지(1 Page)'}
 - 디자인 언어: ${formData.designLanguage || '한국어'}
 - 로그인/회원가입 기능 추가 유무: ${formData.requiresAuth === 'O' ? '필요함 (O)' : '필요하지 않음 (X)'}
@@ -923,6 +1043,7 @@ ${formData.images.length > 0 ? '\n[시각적 참고 자료]\n사용자가 이미
 3. 결과물(웹사이트 전체 레이아웃, 텍스트 콘텐츠, 유저 인터페이스 등)은 반드시 사용자가 선택한 디자인 언어(${formData.designLanguage})로 구현될 수 있도록 정교하게 설계하여 작성하세요. 기술 용어나 설명은 상황공유를 위해 영어를 보조적으로 사용해도 좋습니다.
 4. 결과물이 '매력적인 홈페이지'가 될 수 있도록 트렌디한 디자인 요소를 적극 제안하세요.
 5. 앱이 완성되면 좌측 상단에 반드시 프로젝트 이름(${formData.projectName || '미정'})이 브랜드 로고처럼 표시되도록 개발 지침에 명시하세요.
+6. 사이트 푸터 나 제작자 표시 영역에 개발자명(${formData.developerName}) 정보와 회사명(${formData.companyName ? formData.companyName : ''}) 정보가 프로페셔널한 레이아웃으로 조화롭게 반영될 수 있는 권장 가이드라인을 개발 지침에 추가적으로 언급해 주세요.
 `;
 
       const contents = formData.images.length > 0 
@@ -940,7 +1061,7 @@ ${formData.images.length > 0 ? '\n[시각적 참고 자료]\n사용자가 이미
         : promptText;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+        model: 'gemini-3.5-flash',
         contents: contents,
       });
 
@@ -966,13 +1087,15 @@ ${formData.images.length > 0 ? '\n[시각적 참고 자료]\n사용자가 이미
 
   const basicFields = [
     { id: 'projectName', label: '프로젝트 이름', icon: <FileText size={18} className="text-indigo-400" />, placeholder: '예: 혁신적인 AI 포트폴리오 사이트', required: true },
-    { id: 'websiteType', label: '홈페이지 종류', icon: <Layout size={18} className="text-indigo-400" />, type: 'select', options: ['랜딩페이지(1 Page)', '기업 및 서비스 다중 페이지', '포트폴리오 사이트', '블로그 / 컨텐츠 미디어', 'B2B/B2C SaaS 플랫폼', '쇼핑몰 / 이커머스', '생산성 앱 / 툴', 'CRM(고객 관계 관리)', 'ERP (전사적 자원 관리)', 'LMS (학습 관리 시스템)', 'CMS (콘텐츠 관리 시스템)', '대시보드 / 어드민 페이지', '예약 및 매칭 플랫폼', '사내 인트라넷 / 그룹웨어', '마케팅 플랫폼', '강의 플랫폼', '부동산 / 프롭테크 플랫폼', '소셜 플랫폼 / 커뮤니티', '포털 / 기타'], required: true },
+    { id: 'companyName', label: '회사명', icon: <Building size={18} className="text-indigo-400" />, placeholder: '예: 넥스트인 (선택사항)', required: false },
+    { id: 'developerName', label: '개발자명', icon: <User size={18} className="text-indigo-400" />, placeholder: '예: 홍길동', required: true },
+    { id: 'purpose', label: '웹사이트 목적', icon: <Layout size={18} className="text-indigo-400" />, type: 'textarea', placeholder: '예: 개인 포트폴리오 전시 및 프리랜서 문의 접수', required: true },
     { id: 'requiresAuth', label: '로그인/회원가입 기능 추가 유무', icon: <Key size={18} className="text-indigo-400" />, type: 'radio', options: ['O', 'X'], required: true },
     { id: 'designLanguage', label: '디자인 언어', icon: <Languages size={18} className="text-indigo-400" />, type: 'select', options: ['한국어', '영어', '일본어', '중국어', '스페인어', '프랑스어', '독일어', '기타'], required: true },
-    { id: 'purpose', label: '웹사이트 목적', icon: <Layout size={18} className="text-indigo-400" />, type: 'textarea', placeholder: '예: 개인 포트폴리오 전시 및 프리랜서 문의 접수', required: true },
     { id: 'coreValue', label: '핵심 가치 및 차별점', icon: <Sparkles size={18} className="text-indigo-400" />, placeholder: '예: 10배 빠른 처리, 혁신적인 UI/UX' },
     { id: 'businessModel', label: '서비스 형태 / 수익 모델', icon: <Users size={18} className="text-indigo-400" />, placeholder: '예: B2B SaaS 구독형, 무료 커뮤니티' },
     { id: 'references', label: '참고 사이트 / 벤치마킹', icon: <ArrowRight size={18} className="text-indigo-400" />, placeholder: '예: Apple처럼 깔끔한 레이아웃' },
+    { id: 'websiteType', label: '홈페이지 종류', icon: <Layout size={18} className="text-indigo-400" />, type: 'select', options: ['랜딩페이지(1 Page)', '기업 및 서비스 다중 페이지', '포트폴리오 사이트', '블로그 / 컨텐츠 미디어', 'B2B/B2C SaaS 플랫폼', '쇼핑몰 / 이커머스', '생산성 앱 / 툴', 'CRM(고객 관계 관리)', 'ERP (전사적 자원 관리)', 'LMS (학습 관리 시스템)', 'CMS (콘텐츠 관리 시스템)', '대시보드 / 어드민 페이지', '예약 및 매칭 플랫폼', '사내 인트라넷 / 그룹웨어', '마케팅 플랫폼', '강의 플랫폼', '부동산 / 프롭테크 플랫폼', '소셜 플랫폼 / 커뮤니티', '포털 / 기타'], required: true },
   ];
 
   const detailFields = [
@@ -1223,16 +1346,44 @@ ${formData.images.length > 0 ? '\n[시각적 참고 자료]\n사용자가 이미
                   
                   {basicFields.map((field) => (
                     <div key={field.id} className="space-y-2">
-                      <label htmlFor={field.id} className="flex items-center gap-2 text-sm font-bold text-zinc-200 w-full">
-                        <span className="flex items-center gap-2">
+                      <label htmlFor={field.id} className="flex items-center gap-2 text-sm font-bold text-zinc-200 w-full justify-between">
+                        <span className="flex items-center gap-1">
                           {field.icon}
                           {field.label}
+                          {field.required && (
+                            <span className="text-red-500 font-black text-sm ml-0.5" title="필수 구성 항목">*</span>
+                          )}
                         </span>
-                        {field.required ? (
-                          <span className="text-red-500 font-black text-sm ml-0.5" title="필수 구성 항목">*</span>
-                        ) : (
-                          <span className="text-zinc-500 font-semibold text-[11px] ml-auto">(선택)</span>
-                        )}
+                        <div className="flex items-center gap-2">
+                          {['websiteType', 'coreValue', 'businessModel', 'references'].includes(field.id) && (
+                            <button
+                              type="button"
+                              onClick={() => handleRecommendField(field.id)}
+                              disabled={recommendingField !== null || !formData.projectName || !formData.purpose || !formData.developerName}
+                              className={`px-2 py-0.5 text-[10px] font-bold rounded-md transition-all flex items-center gap-1 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
+                                recommendingField === field.id
+                                  ? 'bg-indigo-600 text-white'
+                                  : 'bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 border border-indigo-500/20 hover:border-indigo-500/40'
+                              }`}
+                              title={(!formData.projectName || !formData.purpose || !formData.developerName) ? "프로젝트 이름, 개발자명 및 웹사이트 목적을 입력해야 작동합니다." : "이 항목을 인공지능으로 자동 추천 받습니다."}
+                            >
+                              {recommendingField === field.id ? (
+                                <>
+                                  <Loader2 className="animate-spin text-white" size={10} />
+                                  <span>추천 중...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Sparkles size={10} className="text-indigo-400" />
+                                  <span>AI 추천받기</span>
+                                </>
+                              )}
+                            </button>
+                          )}
+                          {!field.required && (
+                            <span className="text-zinc-500 font-semibold text-[11px] ml-auto">(선택)</span>
+                          )}
+                        </div>
                       </label>
                       {field.type === 'select' ? (
                         <select
@@ -1300,7 +1451,7 @@ ${formData.images.length > 0 ? '\n[시각적 참고 자료]\n사용자가 이미
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={handleAutoPlan}
-                      disabled={isPlanning || !formData.projectName || !formData.purpose}
+                      disabled={isPlanning || !formData.projectName || !formData.purpose || !formData.developerName}
                       className="w-full py-4 px-4 bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 rounded-xl text-sm font-bold flex items-center justify-center gap-3 hover:bg-indigo-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-indigo-500/5 group"
                     >
                       {isPlanning ? (
